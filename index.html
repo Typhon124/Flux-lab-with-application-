@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flux Lab — Electric Flux &amp; Gauss’s Law (PHY211 Ch. 6)</title>
+<style>
+:root{--bg:#070a12;--pn:#0e1420;--pn2:#141c2b;--tx:#eaf1fb;--mu:#8d9bb3;--ln:#223047;--ac:#22c3a6;--ac2:#7c5cff;--E:#4fd1ff;--pos:#ff5a6a;--neg:#4d8bff;--out:#ffad2e;--in:#33e1ff;--sf:#3ddc97;--A:#ff5c9a;--gold:#ffd54f;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{height:100dvh;overscroll-behavior:none}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px)}
+header{display:flex;align-items:center;gap:10px;padding:8px 12px;background:linear-gradient(90deg,#0d1424,#121a2e);border-bottom:1px solid var(--ln);flex-wrap:wrap}
+.brand{font-weight:800;font-size:16px;letter-spacing:.2px;display:flex;align-items:center;gap:6px}
+.brand i{font-style:normal;background:linear-gradient(135deg,#ffd54f,#ff8a3d);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:18px}
+nav{display:flex;gap:6px;overflow-x:auto;flex:1;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;font:inherit;color:var(--tx);background:var(--pn2);border:1px solid var(--ln);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap;transition:transform .08s,background .15s,border-color .15s}
+button:active{transform:scale(.96)}
+button.on{background:linear-gradient(135deg,var(--ac),#1aa0c8);border-color:transparent;color:#04121a;font-weight:700}
+nav button{font-weight:600}
+.right{display:flex;gap:8px;align-items:center;margin-left:auto}
+#stars{font-weight:800;color:var(--gold);background:#1d1a0c;border:1px solid #4a3f12;border-radius:999px;padding:4px 10px}
+main{flex:1;min-height:0;display:flex}
+#stage{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative;flex:1;min-width:0;background:radial-gradient(ellipse at 50% 40%,#13203a 0%,#0a1020 55%,#05070d 100%);overflow:hidden}
+#c{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+#hud{position:absolute;left:10px;top:10px;min-width:210px;max-width:min(330px,calc(100% - 70px));background:rgba(10,16,28,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:9px 12px;pointer-events:none;font-size:12.5px}
+#hud .big{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+#hud .lbl{color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.hb{height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;margin:4px 0}
+.hb i{display:block;height:100%;border-radius:4px;transition:width .15s}
+.hrow{display:grid;grid-template-columns:34px 1fr auto;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+#tip{transition:opacity .6s;position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:12px;color:#c9d6ea;background:rgba(10,16,28,.6);padding:5px 12px;border-radius:999px;pointer-events:none;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+#rv{position:absolute;right:10px;top:10px;padding:5px 10px;font-size:12px;background:rgba(10,16,28,.7)}
+#toast{position:absolute;left:50%;top:14px;transform:translate(-50%,-260%);opacity:0;background:linear-gradient(135deg,#ffd54f,#ff9f43);color:#1c1300;font-weight:800;padding:9px 16px;border-radius:999px;box-shadow:0 8px 30px rgba(255,180,60,.35);transition:transform .35s cubic-bezier(.2,1.4,.4,1);pointer-events:none;white-space:nowrap;z-index:5}
+#toast.show{transform:translate(-50%,0);opacity:1}
+aside{width:380px;overflow:auto;background:var(--pn);border-left:1px solid var(--ln);padding:14px 14px 30px}
+@media(max-width:820px){
+ header{padding:6px 8px;gap:6px}.brand{font-size:15px}.brand span{display:none}
+ nav{order:3;flex-basis:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+ nav button{padding:8px 2px;font-size:12.5px;min-height:38px}nav .lg{display:none}nav .sm{display:inline}
+ #stars{padding:4px 9px;font-size:13px}#snd{padding:5px 10px;min-height:34px}
+ main{flex-direction:column}
+ #stage{flex:none;height:50vh;height:50svh}
+ aside{width:auto;flex:1;border-left:0;border-top:1px solid var(--ln);padding:12px 12px calc(30px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+ #hud{left:8px;top:8px;padding:6px 10px;font-size:11.5px;min-width:0;max-width:calc(100% - 84px);border-radius:12px}
+ #hud .big{font-size:17px}#hud .lbl{font-size:10px}
+ #rv{top:8px;right:8px;padding:6px 10px}
+ #tip{font-size:11.5px;bottom:8px}
+ #toast{font-size:13px;padding:8px 14px}
+ aside button{padding:9px 13px;min-height:40px}
+ .row{gap:7px}.s{font-size:13.5px}
+ input[type=range]{height:36px}
+ input[type=range]::-webkit-slider-thumb{width:28px;height:28px;margin-top:-11px}
+ input[type=range]::-moz-range-thumb{width:28px;height:28px}
+ .tg{font-size:14px;padding:6px 0}.tg input{width:18px;height:18px}
+ h2{font-size:17px}.intro{font-size:13.5px}
+ .eq{white-space:normal;font-size:15px}
+ .ci{padding:9px 4px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ header{padding:4px 8px;gap:6px;flex-wrap:nowrap}.brand span{display:none}
+ nav{order:0;flex-basis:auto;display:flex}nav button{padding:5px 10px;min-height:32px;font-size:13px}nav .lg{display:none}nav .sm{display:inline}
+ main{flex-direction:row}
+ #stage{flex:1;height:auto}
+ aside{width:42%;max-width:400px;flex:none;border-top:0;border-left:1px solid var(--ln);padding:10px 12px calc(20px + env(safe-area-inset-bottom,0px))}
+ #hud{padding:5px 9px}#hud .big{font-size:16px}
+ #tip{display:none}
+}
+h2{margin:0 0 4px;font-size:18px}
+.intro{color:#c3cfe2;margin:0 0 12px}
+.intro b{color:var(--tx)}
+.card{background:var(--pn2);border:1px solid var(--ln);border-radius:14px;padding:10px 12px;margin:10px 0}
+.eq{font:600 16px Georgia,"Times New Roman",serif;overflow-x:auto;white-space:nowrap}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.row .t{color:var(--mu);font-size:12px;margin-right:2px}
+.s{display:grid;grid-template-columns:1fr auto;margin:10px 0 0;font-size:13px}
+.s output{font-weight:700;font-variant-numeric:tabular-nums}
+input[type=range]{grid-column:1/3;width:100%;margin:6px 0 0;height:28px;-webkit-appearance:none;appearance:none;background:transparent;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:#26344b}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c8fff3,var(--ac) 55%,#128a77);box-shadow:0 0 0 4px rgba(34,195,166,.18),0 2px 6px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:#26344b}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:var(--ac);box-shadow:0 0 0 4px rgba(34,195,166,.18)}
+#tip.hide{opacity:0}
+.sm{display:none}
+.ch h3{margin:2px 0 6px;font-size:14px;display:flex;justify-content:space-between}
+.ci{display:flex;gap:10px;align-items:flex-start;padding:8px 6px;border-radius:10px;transition:background .3s}
+.ci+.ci{border-top:1px solid var(--ln)}
+.ci .st{font-size:20px;line-height:1;color:#3d4a60;transition:color .3s,transform .3s}
+.ci.done .st{color:var(--gold);transform:scale(1.15)}
+.ci.done b{color:var(--gold)}
+.ci small{display:block;color:var(--mu)}
+.ci.flash{background:rgba(255,213,79,.15)}
+.tg{display:inline-flex;gap:5px;align-items:center;font-size:13px;margin-right:10px;white-space:nowrap}
+.tg input{accent-color:var(--ac)}
+details{margin-top:10px;color:#b7c4d9;font-size:13px}
+details summary{cursor:pointer;color:var(--tx);font-weight:700}
+details p{margin:6px 0}
+.vec{font-style:italic;font-weight:700}
+.k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:#c3cfe2}
+.meter{height:14px;border-radius:7px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:7px;transition:width .3s,background .3s}
+.badge{display:inline-block;font-weight:800;padding:3px 10px;border-radius:999px;font-size:12px}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.slot{border:1px dashed #33425c;border-radius:10px;padding:7px 8px;font-size:12px;color:#5d6b84;text-align:center}
+.slot.got{border:1px solid var(--sf);color:var(--sf);background:rgba(61,220,151,.08);font-weight:700}
+canvas#pl{width:100%;max-width:340px;display:block;margin-top:8px;background:#0a0f1a;border-radius:10px}
+
+.stp{display:flex;gap:10px;padding:8px 6px;border-radius:10px;margin-top:4px;transition:background .3s}
+.stp .n{flex:none;width:22px;height:22px;border-radius:50%;background:#26344b;color:#cfe6ff;display:grid;place-items:center;font-weight:800;font-size:12px}
+.stp.cur{background:rgba(255,209,102,.1);outline:1px solid rgba(255,209,102,.35)}.stp.cur .n{background:#ffd166;color:#1c1300}
+.m{font:15px/1.6 Georgia,"Times New Roman",serif;margin-top:3px;overflow-x:auto}
+.z{color:#9fb0c8;font:12.5px/1.45 system-ui,sans-serif}.ans{color:#ffd166}
+.prop{padding:7px 9px;border-radius:9px;margin-top:6px;color:#8d9bb3;border:1px dashed #33425c;transition:all .3s}
+.prop.ok{color:#3ddc97;border:1px solid #3ddc97;background:rgba(61,220,151,.08)}
+.prop.ok::before{content:"✓ "}
+button:disabled{opacity:.4}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+.pos{color:var(--pos)}.negc{color:var(--neg)}
+.big-btn{font-weight:700}
+.chg{font-weight:800;min-width:54px}
+.chg.p{border-color:#6b2a33;color:#ff8a96}.chg.n{border-color:#24406e;color:#8fb6ff}
+</style></head>
+<body>
+<header>
+ <div class="brand"><i>⚡</i>Flux Lab<span style="color:var(--mu);font-weight:500;font-size:13px">&nbsp;· Electric flux &amp; Gauss’s law</span></div>
+ <nav id="tabs"><button data-m="0"><span class="lg">1 · Flux Catcher</span><span class="sm">⚡ Flux</span></button><button data-m="1"><span class="lg">2 · Gauss Arena</span><span class="sm">◎ Gauss</span></button><button data-m="2"><span class="lg">3 · Applying Gauss</span><span class="sm">∮ Apply</span></button><button data-m="3"><span class="lg">4 · Conductors</span><span class="sm">▣ Conductors</span></button></nav>
+ <div class="right"><span id="stars">★ 0/14</span><button id="snd" title="Sound on/off" aria-label="Toggle sound">🔊</button></div>
+</header>
+<main>
+ <div id="stage"><canvas id="c" aria-label="Interactive 3D view"></canvas><div id="hud"></div><div id="toast"></div><div id="tip"></div><button id="rv">⟲ View</button></div>
+ <aside id="pn"></aside>
+</main>
+<canvas id="fx"></canvas>
+<script>
+"use strict";
+/* ================= helpers ================= */
+const $=i=>document.getElementById(i),PI=Math.PI,K=8.9875517923e9,E0=8.8541878128e-12;
+const add3=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],sub3=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],scl=(a,s)=>[a[0]*s,a[1]*s,a[2]*s],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len=a=>Math.hypot(a[0],a[1],a[2]),norm=a=>{const l=len(a)||1;return[a[0]/l,a[1]/l,a[2]/l]};
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const fib=(N,i)=>{const y=1-2*(i+.5)/N,r=Math.sqrt(Math.max(0,1-y*y)),p=i*2.399963;return[r*Math.cos(p),y,r*Math.sin(p)]};
+const dirTP=(t,p)=>[Math.sin(t)*Math.cos(p),Math.cos(t),Math.sin(t)*Math.sin(p)];
+const sci=x=>{if(Math.abs(x)<1e-300)return'0';const[m,e]=x.toExponential(2).split('e');return m+' × 10<sup>'+(+e)+'</sup>'};
+const f=(x,d=1)=>(Math.abs(x)<.5*Math.pow(10,-d)?0:x).toFixed(d);
+const sl=(id,t,a,b,s,v,u)=>`<label class="s"><span>${t}</span><output id="o_${id}">${v} ${u}</output><input type="range" id="${id}" min="${a}" max="${b}" step="${s}" value="${v}" data-u="${u}"></label>`;
+const setS=(id,x)=>{const e=$(id);if(!e)return;e.value=x;$('o_'+id).textContent=e.value+' '+e.dataset.u};
+const hex2=(h,a)=>{const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`};
+
+/* ================= storage, sound, toast, confetti ================= */
+let done=new Set();try{done=new Set(JSON.parse(localStorage.getItem('fluxlab-stars')||'[]'))}catch(e){}
+const saveDone=()=>{try{localStorage.setItem('fluxlab-stars',JSON.stringify([...done]))}catch(e){}};
+let AC=null,sndOn=true;
+try{sndOn=localStorage.getItem('fluxlab-snd')!=='0'}catch(e){}
+function au(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function tone(fq,d=.08,type='sine',v=.04,delay=0){if(!sndOn)return;const a=au();if(!a)return;const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(fq,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(1e-4,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03)}
+const chime=()=>[523,659,784,1047,1319].forEach((q,i)=>tone(q,.3,'triangle',.06,i*.07));
+const pop=()=>{tone(300,.12,'square',.03);tone(150,.18,'sine',.05,.03)};
+$('snd').onclick=()=>{sndOn=!sndOn;$('snd').textContent=sndOn?'🔊':'🔇';try{localStorage.setItem('fluxlab-snd',sndOn?'1':'0')}catch(e){}if(sndOn)tone(660,.1,'triangle',.05)};
+$('snd').textContent=sndOn?'🔊':'🔇';
+let toastT=0;function toast(t){const e=$('toast');e.innerHTML=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),2600)}
+const fx=$('fx'),fxc=fx.getContext('2d');let conf=[];
+function confetti(n=140){const r=$('stage').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height*.35,cols=['#ffd54f','#ff5a6a','#4fd1ff','#3ddc97','#b388ff','#ff9f43'];
+ for(let i=0;i<n;i++){const a=Math.random()*2*PI,s=4+Math.random()*9;conf.push({x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s-6,r:Math.random()*PI,vr:(Math.random()-.5)*.4,c:cols[i%cols.length],w:5+Math.random()*6,l:1})}}
+function fxFrame(){if(!conf.length&&!fx._on)return;const W=innerWidth,H=innerHeight;if(fx.width!==W||fx.height!==H){fx.width=W;fx.height=H}fxc.clearRect(0,0,W,H);fx._on=conf.length>0;
+ conf=conf.filter(p=>{p.vy+=.28;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.l-=.009;fxc.save();fxc.globalAlpha=Math.max(0,p.l);fxc.translate(p.x,p.y);fxc.rotate(p.r);fxc.fillStyle=p.c;fxc.fillRect(-p.w/2,-p.w/4,p.w,p.w/2);fxc.restore();return p.l>0&&p.y<H+20})}
+
+/* ================= 3D engine on a 2D canvas ================= */
+const cv=$('c'),ctx=cv.getContext('2d');let W=300,H=300,DPR=1,DPRMAX=2,QL=1;
+const TOUCH=matchMedia('(pointer:coarse)').matches,mob=()=>W<560||H<420;
+function resize(){const r=$('stage').getBoundingClientRect();DPR=Math.min(devicePixelRatio||1,DPRMAX);W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0)}
+new ResizeObserver(resize).observe($('stage'));resize();
+const cam={az:.85,el:.38,dist:13,fov:45};let eye,fw,rt,upv,foc;
+function camUpdate(){const{az,el,dist}=cam;eye=[dist*Math.cos(el)*Math.cos(az),dist*Math.sin(el),dist*Math.cos(el)*Math.sin(az)];fw=norm(scl(eye,-1));rt=norm(cross(fw,[0,1,0]));upv=cross(rt,fw);foc=Math.min(H,W*1.25)/2/Math.tan(cam.fov*PI/360)}
+function P(p){const d=sub3(p,eye),z=dot(d,fw);if(z<.3)return null;const s=foc/z;return[W/2+dot(d,rt)*s,H/2-dot(d,upv)*s,z,s]}
+function hitY(sx,sy,y0=0){const d=norm(add3(fw,add3(scl(rt,(sx-W/2)/foc),scl(upv,-(sy-H/2)/foc))));if(Math.abs(d[1])<1e-4)return null;const t=(y0-eye[1])/d[1];return t>0?add3(eye,scl(d,t)):null}
+const glowC={};
+function sprite(col){if(glowC[col])return glowC[col];const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.15,col);gr.addColorStop(.45,hex2(col,.35));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);return glowC[col]=c}
+function glow(sp,r,col,a=1){if(!sp)return;ctx.globalAlpha=clamp(a,0,1);ctx.drawImage(sprite(col),sp[0]-r,sp[1]-r,2*r,2*r);ctx.globalAlpha=1}
+function line3(a,b,col,w=1,al=1){const p=P(a),q=P(b);if(!p||!q)return;ctx.globalAlpha=al;ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();ctx.globalAlpha=1}
+function poly3(pts,fill,stroke,w=1,dash){const q=pts.map(P);if(q.some(x=>!x))return;ctx.beginPath();q.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.setLineDash(dash||[]);ctx.strokeStyle=stroke;ctx.lineWidth=w;ctx.stroke();ctx.setLineDash([])}}
+function arrow(o,d,L,col,w=2.5,al=1){const p0=P(o),p1=P(add3(o,scl(d,L)));if(!p0||!p1)return null;const dx=p1[0]-p0[0],dy=p1[1]-p0[1],l=Math.hypot(dx,dy);if(l<2)return p1;
+ const ux=dx/l,uy=dy/l,hs=Math.min(l*.5,clamp(p1[3]*.22,6,15));ctx.globalAlpha=al;ctx.strokeStyle=ctx.fillStyle=col;ctx.lineWidth=w;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p1[0]-ux*hs*.7,p1[1]-uy*hs*.7);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p1[0]-ux*hs-uy*hs*.45,p1[1]-uy*hs+ux*hs*.45);ctx.lineTo(p1[0]-ux*hs+uy*hs*.45,p1[1]-uy*hs-ux*hs*.45);ctx.closePath();ctx.fill();ctx.globalAlpha=1;return p1}
+function label(p,t,col,size=13,al=1){if(W<500)size=Math.round(size*.88);const q=P(p);if(!q)return;ctx.globalAlpha=al;ctx.font=`700 ${size}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.strokeStyle='rgba(5,8,15,.85)';ctx.strokeText(t,q[0],q[1]);ctx.fillStyle=col;ctx.fillText(t,q[0],q[1]);ctx.globalAlpha=1}
+function floor(y=-2.9,ext=7){ctx.lineWidth=1;for(let i=-ext;i<=ext;i++){const al=.05+.05*(1-Math.abs(i)/ext);line3([i,y,-ext],[i,y,ext],'#6f8bb8',1,al);line3([-ext,y,i],[ext,y,i],'#6f8bb8',1,al)}}
+const lighter=on=>ctx.globalCompositeOperation=on?'lighter':'source-over';
+
+/* ================= challenges ================= */
+const CH=[[],[],[]];let cur=0;
+function chHTML(m){const n=CH[m].filter(c=>done.has(c.id)).length;return`<div class="card ch"><h3><span>🎯 Challenges</span><span style="color:var(--gold)">${n}/${CH[m].length} ★</span></h3>${CH[m].map(c=>`<div class="ci ${done.has(c.id)?'done':''}" id="ci_${c.id}"><span class="st">${done.has(c.id)?'★':'☆'}</span><div><b>${c.t}</b><small>${c.d}</small></div></div>`).join('')}</div>`}
+function updStars(){const tot=CH.reduce((s,a)=>s+a.length,0),n=CH.flat().filter(c=>done.has(c.id)).length;$('stars').textContent=`★ ${n}/${tot}`}
+function checkCh(){for(const c of CH[cur]){if(done.has(c.id))continue;let ok=false;try{ok=c.ok()}catch(e){}if(ok){done.add(c.id);saveDone();toast('★ '+c.t+'!');confetti();chime();const el=$('ci_'+c.id);if(el){el.classList.add('done','flash');el.querySelector('.st').textContent='★';setTimeout(()=>el.classList.remove('flash'),1500);const h=el.parentElement.querySelector('h3 span:last-child');if(h)h.textContent=`${CH[cur].filter(x=>done.has(x.id)).length}/${CH[cur].length} ★`}updStars()}}}
+
+/* =====================================================================
+   MODE 1 — FLUX CATCHER
+   ===================================================================== */
+const M1={E:200,A:4,th:35,parts:[],bursts:[],rate:0,spin:false,dragged:false,lastTick:0,drag:false};
+CH[0]=[
+ {id:'m1max',t:'Full catch',d:'Get the biggest possible positive flux for your sheet.',ok:()=>Math.cos(M1.th*PI/180)>.9995},
+ {id:'m1zero',t:'Ghost sheet',d:'Make the flux zero while the sheet sits right in the field.',ok:()=>Math.abs(Math.cos(M1.th*PI/180))<.009},
+ {id:'m1half',t:'Half power',d:'Catch exactly half of the maximum flux for your sheet.',ok:()=>Math.abs(Math.cos(M1.th*PI/180)-.5)<.009},
+ {id:'m1neg',t:'Backwards',d:'Make the flux negative: sparks go through against the normal.',ok:()=>Math.cos(M1.th*PI/180)<-.25},
+ {id:'m1tgt',t:'Bullseye',d:'Hit Φ = 450 N·m²/C (±2%). You’ll need more than one slider.',ok:()=>Math.abs(m1Phi()-450)<=9}];
+const m1Phi=()=>M1.E*M1.A*Math.cos(M1.th*PI/180);
+const m1Panel=()=>`<h2>Flux Catcher</h2><p class="intro">The blue sparks are a uniform <b>electric field</b>. Your green sheet is a surface. <b>Flux is how much field flies through it.</b> Drag the <span style="color:var(--A)">pink handle</span> to tilt the sheet.</p>
+<div class="card"><div class="eq" id="m1eq"></div><div class="legend" style="margin-top:8px"><span><i class="k" style="background:var(--E)"></i>field <span class="vec">E</span></span><span><i class="k" style="background:var(--sf)"></i>sheet, area A</span><span><i class="k" style="background:var(--A)"></i>normal <span class="vec">n̂</span></span><span><i class="k" style="background:var(--gold)"></i>shadow = A cos θ</span></div></div>
+${sl('E','Field strength E: more sparks',50,500,10,M1.E,'N/C')}${sl('A','Sheet area A',1,9,.5,M1.A,'m²')}${sl('th','Tilt θ: angle from E to the normal',0,180,1,Math.abs(M1.th),'°')}
+<div class="row"><span class="t">Try:</span><button onclick="m1Set(0)">θ = 0°</button><button onclick="m1Set(60)">60°</button><button onclick="m1Set(90)">90°</button><button onclick="m1Set(180)">180°</button><button id="m1spin" onclick="M1.spin=!M1.spin;this.classList.toggle('on',M1.spin)">⟳ Spin</button></div>
+<div class="row"><span class="t">Lecture (E = 100 N/C, A = 4 m²):</span><button onclick="m1Lec(0)">Ex. 1 · 0°</button><button onclick="m1Lec(90)">Ex. 2 · 90°</button><button onclick="m1Lec(70)">Ex. 3 · 70°</button></div>
+${chHTML(0)}
+<details><summary>Key ideas</summary>
+<p><b>Flux counts what gets through.</b> Every spark moves at the same speed, so the rate at which the sheet catches sparks is proportional to Φ<sub>E</sub> = EA cos θ.</p>
+<p><b>θ is measured from the normal.</b> At θ = 0° the sheet faces the field head-on. At θ = 90° it is edge-on and nothing gets through. The angle to the sheet itself is |90° − θ|.</p>
+<p><b>The shadow.</b> The gold outline is the sheet’s shadow seen along the field. Its area is A cos θ: the area the field actually “sees”.</p>
+<p><b>Sign.</b> Sparks crossing along <span class="vec">n̂</span> count as positive (orange). Sparks crossing against it count as negative (purple). For a closed surface <span class="vec">n̂</span> points outward.</p></details>`;
+function m1Set(d){M1.th=d;M1.spin=false;const b=$('m1spin');if(b)b.classList.remove('on');setS('th',d)}
+function m1Lec(d){M1.E=100;M1.A=4;setS('E',100);setS('A',4);m1Set(d)}
+function m1Spawn(p,any){p.x=any?-6+Math.random()*12:-6-Math.random()*.6;p.y=(Math.random()*2-1)*2.3;p.z=(Math.random()*2-1)*2.3;p.hit=0;p.hc=0;return p}
+function m1Pick(sx,sy){const th=M1.th*PI/180,tip=P([1.9*Math.cos(th),0,1.9*Math.sin(th)]);if(tip&&Math.hypot(sx-tip[0],sy-tip[1])<(TOUCH?48:32)){M1.drag=true;tone(520,.06,'triangle',.04);
+ return{move(x,y){const h=hitY(x,y,0);if(!h)return;let a=Math.round(Math.atan2(h[2],h[0])*180/PI);M1.th=a;M1.spin=false;M1.dragged=true;const b=$('m1spin');if(b)b.classList.remove('on');setS('th',Math.abs(a))},up(){M1.drag=false}}}return null}
+function m1Hover(sx,sy){const th=M1.th*PI/180,tip=P([1.9*Math.cos(th),0,1.9*Math.sin(th)]);return tip&&Math.hypot(sx-tip[0],sy-tip[1])<(TOUCH?48:32)}
+function m1Frame(dt,t){
+ const N=Math.round(M1.E*1.3*QL);while(M1.parts.length<N)M1.parts.push(m1Spawn({},true));if(M1.parts.length>N)M1.parts.length=N;
+ if(M1.spin){M1.th+=45*dt;if(M1.th>180)M1.th-=360;setS('th',Math.round(Math.abs(M1.th)))}
+ const th=M1.th*PI/180,c=Math.cos(th),sn=Math.sin(th),n=[c,0,sn],tg=[-sn,0,c],h=Math.sqrt(M1.A)/2,v=2.8;let got=0;
+ for(const p of M1.parts){const x0=p.x;p.x+=v*dt;p.hit=Math.max(0,p.hit-dt);const s0=c*x0+sn*p.z,s1=c*p.x+sn*p.z;
+  if((s0<0)!==(s1<0)){const fr=s0/(s0-s1),cx=x0+(p.x-x0)*fr,u=-sn*cx+c*p.z;if(Math.abs(u)<=h&&Math.abs(p.y)<=h){p.hit=.7;p.hc=c>0?1:-1;got++;if(M1.bursts.length<220)M1.bursts.push({p:[cx,p.y,p.z],t:0,s:p.hc})}}
+  if(p.x>6)m1Spawn(p)}
+ M1.rate=M1.rate*Math.exp(-dt)+got;
+ if(got&&t-M1.lastTick>.07){M1.lastTick=t;tone(c>0?880+Math.random()*120:330+Math.random()*60,.05,'sine',.012)}
+ M1.bursts=M1.bursts.filter(b=>(b.t+=dt)<.5);
+ /* ---- draw ---- */
+ floor();
+ const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([a,b])=>add3(scl(tg,a*h),[0,b*h,0]));
+ /* shadow on the back wall */
+ const shX=-5.6;poly3(corners.map(q=>[shX,q[1],q[2]]),hex2('#ffd54f',.06+.06*Math.abs(c)),'rgba(255,213,79,.75)',1.5,[6,5]);
+ if(Math.abs(c)>.05)label([shX,h+.35,0],'shadow = A cos θ','#ffd54f',12);
+ corners.forEach(q=>line3(q,[shX,q[1],q[2]],'rgba(255,213,79,.12)',1));
+ if(!mob())label([-3.4,-2.7,-2.3],'Electric field  E  →','#4fd1ff',14);
+ const camSide=Math.sign(dot(n,eye))||1;
+ const drawParts=side=>{lighter(true);for(const p of M1.parts){if((Math.sign(c*p.x+sn*p.z)||1)!==side)continue;const a=P([p.x-.45,p.y,p.z]),b=P([p.x,p.y,p.z]);if(!a||!b)continue;
+   const col=p.hit>0?(p.hc>0?'#ffad2e':'#b388ff'):'#4fd1ff',al=p.hit>0?.9:.45;ctx.globalAlpha=al;ctx.strokeStyle=col;ctx.lineWidth=clamp(b[3]*.045,1,2.6);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+   glow(b,p.hit>0?clamp(b[3]*.32,6,14):clamp(b[3]*.17,3,8),col,p.hit>0?1:.7)}ctx.globalAlpha=1;lighter(false)};
+ drawParts(-camSide);
+ /* the sheet */
+ const boost=Math.min(.25,M1.rate/400),cf=c>=0?'#3ddc97':'#b388ff';
+ poly3(corners,hex2(cf,.1+.12*Math.abs(c)+boost),cf,2.2);
+ for(let k=1;k<4;k++){const a=-h+k*h/2;line3(add3(scl(tg,a),[0,-h,0]),add3(scl(tg,a),[0,h,0]),hex2(cf,.25),1);line3(add3(scl(tg,-h),[0,a,0]),add3(scl(tg,h),[0,a,0]),hex2(cf,.25),1)}
+ drawParts(camSide);
+ lighter(true);for(const b of M1.bursts){const q=P(b.p);if(q)glow(q,clamp(q[3]*(.15+b.t*1.1),5,40),b.s>0?'#ffad2e':'#b388ff',1-b.t/.5)}lighter(false);
+ /* θ arc, E ref, normal + handle */
+ const arc=[];for(let i=0;i<=40;i++){const a=th*i/40;arc.push(P([1.05*Math.cos(a),0,1.05*Math.sin(a)]))}
+ if(arc.every(Boolean)){ctx.strokeStyle='#ffd54f';ctx.lineWidth=2;ctx.beginPath();arc.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()}
+ arrow([0,0,0],[1,0,0],2.1,'#ffffff',2.5,.9);label([2.4,.05,0],'E','#ffffff',14);
+ if(Math.abs(M1.th)>5)label([1.35*Math.cos(th/2),.15,1.35*Math.sin(th/2)],`θ = ${Math.round(Math.abs(M1.th))}°`,'#ffd54f',12);
+ const tip=arrow([0,0,0],n,1.9,'#ff5c9a',3);
+ if(tip){const pul=.5+.5*Math.sin(t*5);lighter(true);glow(tip,15+(M1.drag?8:pul*5),'#ff5c9a',.9);lighter(false);ctx.strokeStyle='#ffd1e2';ctx.lineWidth=2;ctx.beginPath();ctx.arc(tip[0],tip[1],10+(M1.dragged?0:pul*4),0,2*PI);ctx.stroke();
+  if(!M1.dragged){ctx.font='700 12px system-ui';ctx.fillStyle='#ffd1e2';ctx.textAlign='center';ctx.fillText('drag me',tip[0],tip[1]+26)}}
+ label(scl(n,2.45),'n̂','#ff5c9a',15);
+}
+function m1HUD(){const F=m1Phi(),c=Math.cos(M1.th*PI/180),col=F<-.5?'#b388ff':F>.5?'#ffad2e':'#cfd8e6';
+ const bar=`<div class="hb" style="position:relative"><i style="position:absolute;left:${50+Math.min(0,50*c)}%;width:${Math.abs(50*c)}%;background:${c>=0?'#ffad2e':'#b388ff'}"></i><b style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#8d9bb3"></b></div>`;
+ if(mob())$('hud').innerHTML=`<div class="big" style="color:${col}">Φ = ${f(F,1)} <span style="font-size:11px">N·m²/C</span></div>${bar}<div style="color:var(--mu)">${Math.round(Math.abs(c)*100)}% of max · θ = ${Math.round(Math.abs(M1.th))}°</div>`;
+ else $('hud').innerHTML=`<div class="lbl">Electric flux Φ<sub>E</sub></div><div class="big" style="color:${col}">${f(F,1)} <span style="font-size:13px">N·m²/C</span></div>
+ <div class="hb" style="position:relative"><i style="position:absolute;left:${50+Math.min(0,50*c)}%;width:${Math.abs(50*c)}%;background:${c>=0?'#ffad2e':'#b388ff'}"></i><b style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#8d9bb3"></b></div>
+ <div style="color:var(--mu)">${Math.round(M1.rate)} sparks / s caught · ${Math.round(Math.abs(c)*100)}% of max</div>`;
+ const e=$('m1eq');if(e)e.innerHTML=`Φ<sub>E</sub> = E A cos θ = (${M1.E})(${M1.A}) cos ${Math.round(Math.abs(M1.th))}° = <span style="color:${col}">${f(F,1)}</span> N·m²/C`}
+function m1Input(t){if(t.id=='E')M1.E=+t.value;if(t.id=='A')M1.A=+t.value;if(t.id=='th'){M1.th=+t.value;M1.spin=false;const b=$('m1spin');if(b)b.classList.remove('on')}}
+
+/* =====================================================================
+   MODE 2 — GAUSS ARENA
+   ===================================================================== */
+const M2={cx:0,cz:0,ch:[{q:2,x:0,z:0}],shape:'sph',R:2.3,lines:[],cross:[],dirty:true,flux:{o:0,i:0},t:0,show:{l:1,f:1,s:1},drag:null,poofs:[],fr:0,lastQ:null};
+CH[1]=[
+ {id:'m2enc',t:'Trap +3',d:'Enclose a net charge of exactly +3 μC.',ok:()=>Math.abs(m2Qenc()-3)<1e-9},
+ {id:'m2zero',t:'Perfect balance',d:'Zero net flux with at least two charges inside.',ok:()=>m2Inside().length>=2&&Math.abs(m2Qenc())<1e-9},
+ {id:'m2out',t:'Gatecrasher',d:'Park a charge just outside the surface (within 0.5 m). Watch the net flux not care.',ok:()=>M2.ch.some(h=>{const d=m2sd([h.x,0,h.z]);return d>0&&d<.5})},
+ {id:'m2jelly',t:'Jelly test',d:'Switch to the wobbly blob with charge inside. The surface wobbles; the flux doesn’t.',ok:()=>M2.shape=='blob'&&Math.abs(m2Qenc())>1e-9},
+ {id:'m2ex11',t:'Example 11 · S3',d:'Enclose all three charges of Example 11 (−2Q, +Q, −Q) for Φ = −2Q/ε₀.',ok:()=>Math.abs(m2Qenc()+2)<1e-9&&m2Inside().length>=3},
+ {id:'m2sink',t:'Black hole',d:'Make the net flux point inward (negative Φ).',ok:()=>m2Qenc()<-1e-9}];
+const cubeA=()=>M2.R*.82;
+function m2rho(th,ph){if(M2.shape!='blob')return M2.R;const t=M2.t;return M2.R*(1+.17*Math.sin(3*th+1.3*t)*Math.cos(2*ph-.9*t)+.09*Math.sin(5*ph+2*th+1.7*t))}
+const m2P=(th,ph)=>{const v=scl(dirTP(th,ph),m2rho(th,ph));v[0]+=M2.cx;v[2]+=M2.cz;return v};
+function m2sd(p){p=[p[0]-M2.cx,p[1],p[2]-M2.cz];if(M2.shape=='cube')return Math.max(Math.abs(p[0]),Math.abs(p[1]),Math.abs(p[2]))-cubeA();const r=len(p);if(r<1e-9)return-1;return r-m2rho(Math.acos(clamp(p[1]/r,-1,1)),Math.atan2(p[2],p[0]))}
+const m2Inside=()=>M2.ch.filter(h=>m2sd([h.x,0,h.z])<0);
+const m2Qenc=()=>m2Inside().reduce((s,h)=>s+h.q,0);
+function Ef(p){let a=0,b=0,c=0;for(const h of M2.ch){const dx=p[0]-h.x,dy=p[1],dz=p[2]-h.z,d2=dx*dx+dy*dy+dz*dz+1e-9,m=K*h.q*1e-6/(d2*Math.sqrt(d2));a+=m*dx;b+=m*dy;c+=m*dz}return[a,b,c]}
+function m2Flux(){let o=0,ii=0;const add=x=>{x>0?o+=x:ii+=x};
+ if(M2.shape=='cube'){const a=cubeA(),N=40,st=2*a/N,dd=st*st,p=[0,0,0];for(let ax=0;ax<3;ax++)for(const sg of[1,-1])for(let i=0;i<N;i++)for(let j=0;j<N;j++){p[ax]=sg*a;p[(ax+1)%3]=-a+(i+.5)*st;p[(ax+2)%3]=-a+(j+.5)*st;add(sg*Ef([p[0]+M2.cx,p[1],p[2]+M2.cz])[ax]*dd)}}
+ else{const Nt=M2.shape=='blob'?Math.round(44*Math.sqrt(QL)):44,Np=2*Nt,dt=PI/Nt,dp=2*PI/Np,hh=1e-3;for(let i=0;i<Nt;i++)for(let j=0;j<Np;j++){const th=(i+.5)*dt,ph=(j+.5)*dp,P0=m2P(th,ph);let n;
+   if(M2.shape=='sph'){n=scl(dirTP(th,ph),M2.R*M2.R*Math.sin(th))}else{const Pt=scl(sub3(m2P(th+hh,ph),m2P(th-hh,ph)),.5/hh),Pf=scl(sub3(m2P(th,ph+hh),m2P(th,ph-hh)),.5/hh);n=cross(Pt,Pf);if(dot(n,sub3(P0,[M2.cx,0,M2.cz]))<0)n=scl(n,-1)}
+   add(dot(Ef(P0),n)*dt*dp)}}
+ M2.flux={o,i:ii}}
+function m2Lines(){const L=[];for(const h of M2.ch){const N=Math.round(6*Math.abs(h.q)),sg=Math.sign(h.q);for(let k=0;k<N;k++){const d=fib(N,k);let p=[h.x+d[0]*.2,d[1]*.2,h.z+d[2]*.2];const pts=[p];let opp=false;
+  for(let s=0;s<280;s++){const e=Ef(p),m=len(e);if(m<1e-3)break;const mid=add3(p,scl(e,sg*.035/m)),e2=Ef(mid),m2=len(e2);p=add3(p,scl(e2,sg*.07/m2));pts.push(p);if(len(p)>9.5)break;
+   if(M2.ch.some(o=>o.q*h.q<0&&Math.hypot(p[0]-o.x,p[1],p[2]-o.z)<.2)){opp=true;break}}
+  if(h.q<0&&opp)continue;L.push({pts:sg>0?pts:pts.slice().reverse(),ph:Math.random()})}}M2.lines=L}
+function m2Cross(){const C=[];for(const L of M2.lines){let prev=m2sd(L.pts[0]);for(let i=1;i<L.pts.length;i++){const s=m2sd(L.pts[i]);if((prev<0)!==(s<0)){const fr=prev/(prev-s);C.push({p:add3(L.pts[i-1],scl(sub3(L.pts[i],L.pts[i-1]),fr)),out:s>prev})}prev=s}}M2.cross=C}
+function m2Add(q){if(M2.ch.length>=7){toast('Arena full: drag a charge off the edge to remove it');return}const a=Math.random()*2*PI,r=.6+Math.random()*2.6;M2.ch.push({q,x:+(r*Math.cos(a)).toFixed(2),z:+(r*Math.sin(a)).toFixed(2),born:performance.now()});M2.dirty=true;tone(q>0?700:400,.12,'triangle',.05)}
+function m2ShapeUI(){document.querySelectorAll('[data-sh]').forEach(b=>b.classList.toggle('on',b.dataset.sh==M2.shape))}
+function m2Ex11(k){M2.ch=[{q:-2,x:0,z:-1.6},{q:1,x:0,z:0},{q:-1,x:0,z:1.6}];M2.shape='sph';const S=[[0,-.8,1.4],[0,.8,1.4],[0,0,2.4],[2.7,0,1.1]][k];M2.cx=S[0];M2.cz=S[1];M2.R=S[2];setS('R',M2.R);m2ShapeUI();
+ document.querySelectorAll('[data-s11]').forEach(b=>b.classList.toggle('on',+b.dataset.s11==k));M2.dirty=true;tone(500+k*90,.1,'triangle',.05);toast(`Example 11 · S${k+1}: Φ = ${['−Q/ε₀','0','−2Q/ε₀','0'][k]}`)}
+function m2Ex12(k){if(k==0||!M2.ch.length){M2.ch=[{q:1,x:0,z:0}];M2.cx=M2.cz=0;M2.R=2;M2.shape='sph'}if(k==1)M2.ch[0].q=3;if(k==2)M2.R=Math.min(4.5,M2.R*2);if(k==3)M2.shape='cube';if(k==4){M2.ch[0].x=1.1;M2.ch[0].z=.7}
+ setS('R',M2.R);m2ShapeUI();document.querySelectorAll('[data-s11]').forEach(b=>b.classList.remove('on'));M2.dirty=true;tone(500+k*90,.1,'triangle',.05);
+ toast(['Example 12: q at the centre','(A) Charge tripled → flux tripled','(B) Radius doubled → flux unchanged','(C) Cube → flux unchanged','(D) Charge moved → flux unchanged'][k])}
+function m2Shape(s){M2.shape=s;M2.dirty=true;document.querySelectorAll('[data-sh]').forEach(b=>b.classList.toggle('on',b.dataset.sh==s));tone(500,.08,'triangle',.04)}
+function m2Preset(k){M2.cx=M2.cz=0;document.querySelectorAll('[data-s11]').forEach(b=>b.classList.remove('on'));M2.ch=k==0?[{q:2,x:0,z:0}]:k==1?[{q:1,x:-.8,z:.3},{q:2,x:4,z:-.5}]:k==2?[{q:2,x:-.9,z:0},{q:-2,x:.9,z:0}]:[{q:1,x:1.2,z:.8},{q:1,x:-1,z:-.6},{q:-1,x:.2,z:-1.4},{q:-2,x:3.6,z:1.5}];M2.dirty=true;pop()}
+const m2Panel=()=>`<h2>Gauss Arena</h2><p class="intro"><b>Drag charges around</b> and watch the field flow. The glassy shape is your <b>Gaussian surface</b>. Orange flashes are field leaving it, cyan flashes are field entering. Drag a charge off the edge to delete it.</p>
+<div class="card"><div class="eq">∮ <span class="vec">E</span> · d<span class="vec">A</span> = Q<sub>enc</sub> / ε₀</div><div style="color:var(--mu);font-size:12.5px;margin-top:4px">Net flux out of <i>any</i> closed surface depends only on the charge inside it.</div></div>
+<div class="row"><span class="t">Add:</span><button class="chg p" onclick="m2Add(1)">+1 μC</button><button class="chg p" onclick="m2Add(2)">+2 μC</button><button class="chg n" onclick="m2Add(-1)">−1 μC</button><button class="chg n" onclick="m2Add(-2)">−2 μC</button><button onclick="M2.ch=[];M2.dirty=true;pop()">Clear</button></div>
+<div class="row"><span class="t">Surface:</span><button data-sh="sph" class="${M2.shape=='sph'?'on':''}" onclick="m2Shape('sph')">◯ Sphere</button><button data-sh="cube" class="${M2.shape=='cube'?'on':''}" onclick="m2Shape('cube')">▢ Cube</button><button data-sh="blob" class="${M2.shape=='blob'?'on':''}" onclick="m2Shape('blob')">〰 Jelly blob</button></div>
+${sl('R','Surface size',1,4.5,.05,M2.R,'m')}
+<div class="row"><span class="t">Lecture Ex. 11 (Q = 1 μC):</span>${[0,1,2,3].map(k=>`<button data-s11="${k}" onclick="m2Ex11(${k})">S${k+1}</button>`).join('')}</div>
+<div class="row"><span class="t">Lecture Ex. 12:</span><button onclick="m2Ex12(0)">Start</button><button onclick="m2Ex12(1)">(A) ×3 charge</button><button onclick="m2Ex12(2)">(B) ×2 radius</button><button onclick="m2Ex12(3)">(C) cube</button><button onclick="m2Ex12(4)">(D) move q</button></div>
+<div class="row"><span class="t">Scenes:</span><button onclick="m2Preset(0)">Lone charge</button><button onclick="m2Preset(1)">Neighbour outside</button><button onclick="m2Preset(2)">Dipole</button><button onclick="m2Preset(3)">Party</button></div>
+<div class="row"><label class="tg"><input type="checkbox" id="t_l" ${M2.show.l?'checked':''}>Field lines</label><label class="tg"><input type="checkbox" id="t_f" ${M2.show.f?'checked':''}>Flow</label><label class="tg"><input type="checkbox" id="t_s" ${M2.show.s?'checked':''}>Surface</label></div>
+${chHTML(1)}
+<details><summary>Key ideas</summary>
+<p><b>Field vs. flux.</b> <span class="vec">E</span> is a vector at every point. Φ is one number for the whole closed surface: field out minus field in.</p>
+<p><b>Outside charges add zero.</b> Their field lines go in one side and out the other, so every cyan flash has a matching orange one.</p>
+<p><b>Shape doesn’t matter.</b> Sphere, cube or wobbling jelly: the net flux stays Q<sub>enc</sub>/ε₀. The surface colour shows <span class="vec">E</span>·d<span class="vec">A</span> varies wildly on a cube or blob; only the total is fixed.</p>
+<p><b>How it’s computed.</b> The flux is a real numerical integral of <span class="vec">E</span>·d<span class="vec">A</span> over the surface (thousands of patches), so the ✓ is a genuine check of Gauss’s law. It gets less accurate when a charge sits almost on the surface. Field lines (6 per μC) are drawn for illustration.</p></details>`;
+function m2Pick(sx,sy){let best=null,bd=1e9;for(const h of M2.ch){const q=P([h.x,0,h.z]);if(!q)continue;const d=Math.hypot(sx-q[0],sy-q[1]),r=Math.max(TOUCH?38:24,q[3]*(.2+.06*Math.sqrt(Math.abs(h.q)))+(TOUCH?18:10));if(d<r&&d<bd){bd=d;best=h}}
+ if(!best)return null;M2.drag=best;tone(600,.05,'triangle',.04);
+ return{move(x,y){const p=hitY(x,y,0);if(!p)return;best.x=clamp(p[0],-8,8);best.z=clamp(p[2],-8,8);M2.dirty=true},up(){M2.drag=null;if(Math.hypot(best.x,best.z)>6.4){M2.ch=M2.ch.filter(h=>h!==best);M2.poofs.push({p:[best.x,0,best.z],t:0,c:best.q>0?'#ff5a6a':'#4d8bff'});M2.dirty=true;pop()}}}}
+function m2Hover(sx,sy){return M2.ch.some(h=>{const q=P([h.x,0,h.z]);return q&&Math.hypot(sx-q[0],sy-q[1])<26})}
+function m2Quads(){const Q=[];
+ if(M2.shape=='cube'){const a=cubeA(),N=6;for(let ax=0;ax<3;ax++)for(const sg of[1,-1])for(let i=0;i<N;i++)for(let j=0;j<N;j++){const mk=(u,v)=>{const p=[0,0,0];p[ax]=sg*a;p[(ax+1)%3]=-a+u*2*a/N;p[(ax+2)%3]=-a+v*2*a/N;p[0]+=M2.cx;p[2]+=M2.cz;return p},n=[0,0,0];n[ax]=sg;Q.push({v:[mk(i,j),mk(i+1,j),mk(i+1,j+1),mk(i,j+1)],c:mk(i+.5,j+.5),n})}}
+ else{const Nt=16,Np=32,G=[];for(let i=0;i<=Nt;i++){G.push([]);for(let j=0;j<=Np;j++)G[i].push(m2P(i*PI/Nt,j*2*PI/Np))}
+  for(let i=0;i<Nt;i++)for(let j=0;j<Np;j++){const v=[G[i][j],G[i][j+1],G[i+1][j+1],G[i+1][j]],c=m2P((i+.5)*PI/Nt,(j+.5)*2*PI/Np);let n=norm(cross(sub3(v[2],v[0]),sub3(v[3],v[1])));if(dot(n,sub3(c,[M2.cx,0,M2.cz]))<0)n=scl(n,-1);Q.push({v,c,n})}}
+ return Q}
+function m2Frame(dt,t){
+ M2.t+=dt;M2.fr++;
+ if(M2.dirty){m2Lines();m2Flux();m2Cross();M2.dirty=false}
+ else if(M2.shape=='blob'){m2Flux();if(M2.fr%2==0)m2Cross()}
+ const qe=m2Qenc();if(M2.lastQ!==null&&Math.abs(qe-M2.lastQ)>1e-9&&!M2.dirty)tone(qe>M2.lastQ?760:420,.1,'triangle',.04);M2.lastQ=qe;
+ floor();
+ /* deletion ring while dragging */
+ if(M2.drag){const r=[];for(let i=0;i<=64;i++){const a=i/64*2*PI;r.push(P([6.4*Math.cos(a),0,6.4*Math.sin(a)]))}if(r.every(Boolean)){ctx.setLineDash([6,6]);ctx.strokeStyle=Math.hypot(M2.drag.x,M2.drag.z)>6.4?'#ff5a6a':'rgba(255,90,106,.35)';ctx.lineWidth=2;ctx.beginPath();r.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.setLineDash([])}}
+ /* surface */
+ if(M2.show.s){const Q=m2Quads();let mx=0;for(const q of Q){q.en=dot(Ef(q.c),q.n);mx=Math.max(mx,Math.abs(q.en))}
+  for(const q of Q){const p=P(q.c);q.z=p?p[2]:-1}Q.sort((a,b)=>b.z-a.z);
+  for(const q of Q){const tt=mx>0?Math.pow(Math.abs(q.en)/mx,.55):0,hc=q.en>0?[255,160,50]:[50,205,255],b=[120,140,175],rgb=b.map((x,i)=>Math.round(x+(hc[i]-x)*tt));poly3(q.v,`rgba(${rgb},${.07+.3*tt})`,'rgba(200,225,255,.09)',1)}}
+ /* field lines + flow */
+ lighter(true);
+ if(M2.show.l)for(const L of M2.lines){ctx.strokeStyle='rgba(110,170,255,.32)';ctx.lineWidth=1.3;ctx.beginPath();let on=false;for(const p of L.pts){const q=P(p);if(!q){on=false;continue}on?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]);on=true}ctx.stroke()}
+ if(M2.show.f)for(const L of M2.lines){const n=L.pts.length-1;if(n<3)continue;for(let k=0;k<3;k++){const u=((t*.28+L.ph+k/3)%1)*n,i=Math.floor(u),fr=u-i,p=add3(L.pts[i],scl(sub3(L.pts[Math.min(n,i+1)],L.pts[i]),fr)),q=P(p);if(q)glow(q,clamp(q[3]*.16,3,8),'#bfe6ff',.85)}}
+ if(M2.show.s)for(const c of M2.cross){const q=P(c.p);if(q)glow(q,clamp(q[3]*.26,5,12)*(1+.25*Math.sin(t*6)),c.out?'#ffad2e':'#33e1ff',.95)}
+ for(const b of M2.poofs){b.t+=dt;const q=P(b.p);if(q)glow(q,10+b.t*120,b.c,1-b.t/.5)}M2.poofs=M2.poofs.filter(b=>b.t<.5);
+ lighter(false);
+ /* charges */
+ const S=M2.ch.map(h=>({h,q:P([h.x,0,h.z])})).filter(o=>o.q).sort((a,b)=>b.q[2]-a.q[2]);
+ for(const{h,q}of S){const age=h.born?clamp((performance.now()-h.born)/350,0,1):1,r=q[3]*(.17+.06*Math.sqrt(Math.abs(h.q)))*(age<1?1.4-.4*age:1),col=h.q>0?'#ff5a6a':'#4d8bff',ins=m2sd([h.x,0,h.z])<0;
+  lighter(true);glow(q,r*3.4,col,.8);lighter(false);
+  const g=ctx.createRadialGradient(q[0]-r*.35,q[1]-r*.35,r*.1,q[0],q[1],r);g.addColorStop(0,'#ffffff');g.addColorStop(.35,col);g.addColorStop(1,h.q>0?'#7a1020':'#10286e');ctx.fillStyle=g;ctx.beginPath();ctx.arc(q[0],q[1],r,0,2*PI);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font=`900 ${Math.round(r*1.2)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h.q>0?'+':'−',q[0],q[1]+1);
+  if(ins){ctx.strokeStyle='rgba(61,220,151,.85)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.lineDashOffset=-t*20;ctx.beginPath();ctx.arc(q[0],q[1],r+6,0,2*PI);ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0}
+  ctx.font='700 11px system-ui';ctx.lineWidth=3;ctx.strokeStyle='rgba(5,8,15,.85)';const tx=`${h.q>0?'+':'−'}${Math.abs(h.q)} μC`;ctx.strokeText(tx,q[0],q[1]+r+12);ctx.fillStyle=h.q>0?'#ff9aa5':'#9cc0ff';ctx.fillText(tx,q[0],q[1]+r+12)}
+}
+function m2HUD(){const{o,i}=M2.flux,tot0=o-i,net=Math.abs(o+i)<tot0*1e-3?0:o+i,qe=m2Qenc(),pr=qe*1e-6/E0,mx=Math.max(o,-i,1),tot=o-i,ok=tot>0?Math.abs(net-pr)/tot<.01:Math.abs(pr)<1;
+ const near=M2.ch.some(h=>Math.abs(m2sd([h.x,0,h.z]))<.15);
+ const badge=ok&&!near?'<span class="badge" style="background:#173d2c;color:#3ddc97">✓ equal</span>':near?'<span class="badge" style="background:#3d2e17;color:#ffd54f">charge on surface</span>':'';
+ if(mob()){$('hud').innerHTML=`<div class="hrow" style="grid-template-columns:28px 1fr"><span style="color:#ffad2e">Out</span><div class="hb"><i style="width:${o/mx*100}%;background:#ffad2e"></i></div></div><div class="hrow" style="grid-template-columns:28px 1fr"><span style="color:#33e1ff">In</span><div class="hb"><i style="width:${-i/mx*100}%;background:#33e1ff"></i></div></div><div><b style="font-size:14px">Net Φ = ${sci(net)}</b></div><div>= Q<sub>enc</sub>/ε₀ ${badge}</div><div style="color:var(--mu)">Q<sub>enc</sub> = <b style="color:${qe>0?'#ff8a96':qe<0?'#8fb6ff':'#cfd8e6'}">${qe>0?'+':''}${f(qe,1)} μC</b></div>`;return}
+ $('hud').innerHTML=`<div class="lbl">Flux through the surface (N·m²/C)</div>
+ <div class="hrow"><span style="color:#ffad2e">Out</span><div class="hb"><i style="width:${o/mx*100}%;background:#ffad2e"></i></div><span>${sci(o)}</span></div>
+ <div class="hrow"><span style="color:#33e1ff">In</span><div class="hb"><i style="width:${-i/mx*100}%;background:#33e1ff"></i></div><span>${sci(-i)}</span></div>
+ <div style="margin-top:5px"><span class="lbl">Net Φ</span> <b style="font-size:16px">${sci(net)}</b></div>
+ <div><span class="lbl">Q<sub>enc</sub>/ε₀</span> <b style="font-size:16px">${sci(pr)}</b> ${ok&&!near?'<span class="badge" style="background:#173d2c;color:#3ddc97">✓ equal</span>':near?'<span class="badge" style="background:#3d2e17;color:#ffd54f">charge on surface</span>':''}</div>
+ <div style="color:var(--mu)">Q<sub>enc</sub> = <b style="color:${qe>0?'#ff8a96':qe<0?'#8fb6ff':'#cfd8e6'}">${qe>0?'+':''}${f(qe,1)} μC</b> · ${m2Inside().length} inside</div>`}
+function m2Input(t){if(t.id=='R'){M2.R=+t.value;M2.dirty=true}}
+
+/* =====================================================================
+   shared helpers for tabs 3–4
+   ===================================================================== */
+const KE=8.9875517923e9;
+const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const sciT=x=>{const[m,e]=x.toExponential(2).split('e');return m+'×10'+String(+e).split('').map(c=>SUP[c]).join('')};
+const fmtT=x=>x===0?'0':(x>=1e4||(x<.1&&x>0))?sciT(x):f(x,x<10?2:1);
+function paint(Q){for(const q of Q){const p=P(q.c);q.z=p?p[2]:-1}Q.sort((a,b)=>b.z-a.z);for(const q of Q)poly3(q.v,q.f,q.s,1)}
+function cylQuads(ax,r,h0,h1,N,fs,fc,stroke){const pt=(a,h,rr=r)=>ax=='y'?[rr*Math.cos(a),h,rr*Math.sin(a)]:[h,rr*Math.cos(a),rr*Math.sin(a)],Q=[];
+ for(let j=0;j<N;j++){const a0=j*2*PI/N,a1=(j+1)*2*PI/N,am=(a0+a1)/2;Q.push({v:[pt(a0,h0),pt(a1,h0),pt(a1,h1),pt(a0,h1)],c:pt(am,(h0+h1)/2),f:fs,s:stroke});
+  for(const h of[h0,h1])Q.push({v:[pt(0,h,0),pt(a0,h),pt(a1,h)],c:pt(am,h,r*.6),f:fc,s:null})}return Q}
+function sphQuads(R,Nt,Np,fill,stroke){const Q=[];for(let i=0;i<Nt;i++)for(let j=0;j<Np;j++){const t0=i*PI/Nt,t1=(i+1)*PI/Nt,p0=j*2*PI/Np,p1=(j+1)*2*PI/Np;
+ Q.push({v:[scl(dirTP(t0,p0),R),scl(dirTP(t0,p1),R),scl(dirTP(t1,p1),R),scl(dirTP(t1,p0),R)],c:scl(dirTP((t0+t1)/2,(p0+p1)/2),R),f:fill,s:stroke})}return Q}
+function arrow2(x0,y0,x1,y1,col,w=2.2,al=1){const dx=x1-x0,dy=y1-y0,l=Math.hypot(dx,dy);if(l<3)return;const ux=dx/l,uy=dy/l,hs=Math.min(l*.5,10);ctx.globalAlpha=al;ctx.strokeStyle=ctx.fillStyle=col;ctx.lineWidth=w;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1-ux*hs*.7,y1-uy*hs*.7);ctx.stroke();ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-ux*hs-uy*hs*.45,y1-uy*hs+ux*hs*.45);ctx.lineTo(x1-ux*hs+uy*hs*.45,y1-uy*hs-ux*hs*.45);ctx.closePath();ctx.fill();ctx.globalAlpha=1}
+function plotE(fn,xmax,xl,xm,Emax,vls=[]){const c=$('pl');if(!c)return;const g=c.getContext('2d'),Wp=340,Hp=120;g.clearRect(0,0,Wp,Hp);g.strokeStyle=g.fillStyle='#6f7d95';g.lineWidth=1;g.font='10px system-ui';
+ g.beginPath();g.moveTo(26,6);g.lineTo(26,Hp-16);g.lineTo(Wp-6,Hp-16);g.stroke();g.fillText('E',10,14);g.fillText(xl,Wp-6-g.measureText(xl).width,Hp-4);
+ const X=x=>26+x/xmax*(Wp-36),Y=e=>Hp-16-Math.min(e/Emax,1.05)*(Hp-30);
+ for(const[x,lb]of vls){g.setLineDash([3,3]);g.beginPath();g.moveTo(X(x),6);g.lineTo(X(x),Hp-16);g.stroke();g.setLineDash([]);g.fillText(lb,X(x)+3,14)}
+ g.save();g.beginPath();g.rect(27,0,Wp-27,Hp-17);g.clip();g.strokeStyle='#ff9f43';g.lineWidth=2.2;g.beginPath();let pv=null;
+ for(let i=0;i<=400;i++){const x=Math.max(i/400*xmax,1e-3),y=Y(fn(x));if(pv!==null&&Math.abs(y-pv)>Hp*.4){g.lineTo(X(x),pv);}i?g.lineTo(X(x),y):g.moveTo(X(x),y);pv=y}g.stroke();g.restore();
+ g.fillStyle='#ffd166';g.beginPath();g.arc(X(Math.min(xm,xmax)),Y(fn(xm)),5.5,0,7);g.fill()}
+
+/* =====================================================================
+   MODE 3 — APPLYING GAUSS'S LAW  (slides 32–48)
+   ===================================================================== */
+const M3={app:'line',lam:8,sig:8,Q:2,a:1.2,r:1.6,rs:2,d:1.2,ph:-1.75,step:1,walk:false,walked:false,dmin:9,dmax:0,drag:false};
+const L3=2.4,AC3=1.5;
+const ballPts=Array.from({length:36},(_,i)=>scl(fib(36,i),.25+.65*((i*.618034)%1)));
+CH[2]=[
+ {id:'a3line',t:'Line: E at 2 m',d:'Application 1: drag P to exactly r = 2.0 m from the line.',ok:()=>M3.app=='line'&&Math.abs(M3.r-2)<.03},
+ {id:'a3plane',t:'Distance doesn’t matter',d:'Application 2: move P close (under 0.6 m) and far (over 2.5 m) from the plane.',ok:()=>M3.app=='plane'&&M3.dmin<.6&&M3.dmax>2.5},
+ {id:'a3in',t:'Inside the sphere',d:'Application 3: put P inside the charged sphere (r < a).',ok:()=>M3.app=='sphere'&&M3.rs<M3.a-.05},
+ {id:'a3peak',t:'Peak field',d:'Application 3: put P where E is strongest (use the graph).',ok:()=>M3.app=='sphere'&&Math.abs(M3.rs-M3.a)<.04},
+ {id:'a3walk',t:'Step by step',d:'Walk through all four solution steps with ▶ Next.',ok:()=>M3.walked}];
+const sphE=r=>{const a=M3.a,Q=M3.Q*1e-6;return r<a?KE*Q*r/a**3:KE*Q/(r*r)};
+const E3=()=>M3.app=='line'?2*KE*M3.lam*1e-9/M3.r:M3.app=='plane'?M3.sig*1e-9/(2*E0):sphE(M3.rs);
+const m3Pos=()=>{if(M3.app=='plane')return[M3.d,0,0];const r=M3.app=='line'?M3.r:M3.rs;return[r*Math.cos(M3.ph),0,r*Math.sin(M3.ph)]};
+const showL=n=>!M3.walk||M3.step>=n,hi=n=>M3.walk&&M3.step==n;
+const m3Panel=()=>`<h2>Applying Gauss’s Law</h2><p class="intro">Use Gauss’s law to <b>find E at a point P</b>: choose a closed Gaussian surface that <b>passes through P</b> and has the same symmetry as the charge. <b>Drag P</b> and watch the answer change.</p>
+<div class="row"><button data-app="line" onclick="m3App('line')">1 · Infinite line</button><button data-app="plane" onclick="m3App('plane')">2 · Infinite plane</button><button data-app="sphere" onclick="m3App('sphere')">3 · Charged sphere</button></div>
+<div id="m3ctl"></div>
+<div class="card"><b>Solution</b><div id="m3steps"></div><div class="row" id="m3nav"></div></div>
+<div class="card"><b>E versus distance</b><canvas id="pl" width="340" height="120"></canvas><div class="legend" style="margin-top:6px"><span><i class="k" style="background:#3ddc97"></i>flux through this part (E ∥ A)</span><span><i class="k" style="background:#8ca0c3"></i>zero flux (E ⊥ A)</span><span><i class="k" style="background:#ffa53d"></i><span class="vec">E</span></span><span><i class="k" style="background:#b07cff"></i>d<span class="vec">A</span></span></div></div>
+${chHTML(2)}
+<details><summary>Key ideas</summary>
+<p><b>The surface is your choice.</b> It doesn’t have to be a real surface. Pick one through P on which <span class="vec">E</span> is either parallel to d<span class="vec">A</span> with constant size, or perpendicular to it.</p>
+<p><b>Which surface?</b> Infinite line → cylinder around it. Infinite plane → small cylinder through the plane. Charged sphere → concentric sphere.</p>
+<p><b>Charge densities.</b> λ = Q/L (line), σ = Q/A (surface), ρ = Q/V (volume). They give q<sub>in</sub>: λℓ, σA, or ρ·(4⁄3)πr³.</p></details>`;
+function m3Ctl(){const e=$('m3ctl');if(!e)return;e.innerHTML=M3.app=='line'?sl('lam','Line charge density λ',1,20,1,M3.lam,'nC/m')+sl('r3','Distance of P from the line, r',.3,4,.05,M3.r,'m')
+ :M3.app=='plane'?sl('sig','Surface charge density σ',1,20,1,M3.sig,'nC/m²')+sl('r3','Distance of P from the plane, d',.2,4,.05,M3.d,'m')
+ :sl('Q3','Total charge Q',.5,5,.5,M3.Q,'μC')+sl('r3','Distance of P from the centre, r',.15,4.5,.05,M3.rs,'m')}
+function m3StepData(){const E=fmtT(E3());
+ if(M3.app=='line'){const r=f(M3.r,2);return[
+  ['Choose the Gaussian surface',`A cylinder of radius r = ${r} m and length ℓ, with the line along its axis. Its curved side passes through P.`],
+  ['Split the closed surface',`∮<span class="vec">E</span>·d<span class="vec">A</span> = ∫<sub>top</sub> + ∫<sub>side</sub> + ∫<sub>bottom</sub> = q<sub>in</sub>/ε₀<br><span class="z">∫<sub>top</sub> = ∫<sub>bottom</sub> = 0 because <span class="vec">E</span> ⊥ <span class="vec">A</span></span>`],
+  ['The curved side',`E is constant and parallel to <span class="vec">A</span> (θ = 0):<br>E (2πrℓ) = λℓ/ε₀ &nbsp;⇒&nbsp; E (2πr) = λ/ε₀`],
+  ['Solve for E',`E = λ/(2πε₀r) = 2k<sub>e</sub>λ/r<br>= 2(8.99×10⁹)(${M3.lam}×10⁻⁹)/(${r}) = <b class="ans">${E} N/C</b>`]]}
+ if(M3.app=='plane')return[
+  ['Choose the Gaussian surface',`A small cylinder, end area A = ${AC3} m², with its axis perpendicular to the plane. One end passes through P, d = ${f(M3.d,2)} m from the plane.`],
+  ['Split the closed surface',`∮<span class="vec">E</span>·d<span class="vec">A</span> = ∫<sub>top</sub> + ∫<sub>side</sub> + ∫<sub>bottom</sub> = q<sub>in</sub>/ε₀<br><span class="z">∫<sub>side</sub> = 0 because <span class="vec">E</span> ⊥ <span class="vec">A</span></span>`],
+  ['The two ends',`On both ends <span class="vec">E</span> ∥ <span class="vec">A</span> (θ = 0):<br>EA + EA = σA/ε₀ &nbsp;⇒&nbsp; 2EA = σA/ε₀`],
+  ['Solve for E',`E = σ/(2ε₀) = (${M3.sig}×10⁻⁹)/(2 × 8.85×10⁻¹²) = <b class="ans">${E} N/C</b><br><span class="z">No d in the answer: E is the same at any distance.</span>`]];
+ const r=M3.rs,a=M3.a,Q=M3.Q,inn=r<a,qin=inn?Q*(r/a)**3:Q;return[
+  ['Choose the Gaussian surface',`A sphere centred on the charge, radius r = ${f(r,2)} m, passing through P (${inn?'inside':'outside'} the charged sphere of radius a = ${a} m).`],
+  ['Apply Gauss’s law',`<span class="vec">E</span> and <span class="vec">A</span> are both radial, so θ = 0 everywhere:<br>∮<span class="vec">E</span>·d<span class="vec">A</span> = E (4πr²) = q<sub>in</sub>/ε₀`],
+  [inn?'Find q<sub>in</sub> (r < a)':'Find q<sub>in</sub> (r > a)',inn?`Only part of Q is inside. Same ρ:<br>Q/(⁴⁄₃πa³) = q<sub>in</sub>/(⁴⁄₃πr³) ⇒ q<sub>in</sub> = Qr³/a³ = ${f(qin,3)} μC`:`All of the charge is inside: q<sub>in</sub> = Q = ${Q} μC`],
+  ['Solve for E',inn?`E = k<sub>e</sub>Qr/a³ = <b class="ans">${E} N/C</b><br><span class="z">Inside, E grows linearly with r.</span>`:`E = k<sub>e</sub>Q/r² = <b class="ans">${E} N/C</b><br><span class="z">Outside, it looks just like a point charge Q.</span>`]]}
+function m3StepsUI(){const e=$('m3steps');if(!e)return;e.innerHTML=m3StepData().map(([t,m],i)=>{const n=i+1;if(M3.walk&&n>M3.step)return'';return`<div class="stp ${hi(n)?'cur':''}"><span class="n">${n}</span><div><b>${t}</b><div class="m">${m}</div></div></div>`}).join('')}
+function m3NavUI(){const e=$('m3nav');if(!e)return;e.innerHTML=M3.walk?`<button onclick="m3Go(-1)" ${M3.step<=1?'disabled':''}>◀ Back</button><button class="on" onclick="m3Go(1)">${M3.step<4?'Next ▶':'Done ✓'}</button><span style="color:var(--mu);font-size:12px">Step ${M3.step} of 4</span>`:`<button class="on" onclick="m3Walk()">▶ Step by step</button>`}
+function m3Walk(){M3.walk=true;M3.step=1;m3NavUI();m3StepsUI();tone(600,.08,'triangle',.04)}
+function m3Go(k){if(k>0&&M3.step>=4){M3.walk=false;M3.walked=true;chime()}else{M3.step=clamp(M3.step+k,1,4);tone(500+M3.step*80,.08,'triangle',.04)}m3NavUI();m3StepsUI()}
+function m3App(k){M3.app=k;resetCam();if(k=='sphere')cam.dist*=.72;M3.walk=false;document.querySelectorAll('[data-app]').forEach(b=>b.classList.toggle('on',b.dataset.app==k));m3Ctl();m3NavUI();m3StepsUI();tone(520,.08,'triangle',.04)}
+function m3Graph(){if(M3.app=='line'){const l=M3.lam*1e-9;plotE(r=>2*KE*l/r,4,'r (m)',M3.r,2*KE*l/.3)}else if(M3.app=='plane'){const E=E3();plotE(()=>E,4,'d (m)',M3.d,2*E)}else plotE(sphE,4.5,'r (m)',M3.rs,sphE(M3.a)*1.05,[[M3.a,'a']])}
+function m3Input(t){const v=+t.value;if(t.id=='lam')M3.lam=v;if(t.id=='sig')M3.sig=v;if(t.id=='Q3')M3.Q=v;
+ if(t.id=='r3'){if(M3.app=='line')M3.r=v;else if(M3.app=='plane'){M3.d=v;M3.dmin=Math.min(M3.dmin,v);M3.dmax=Math.max(M3.dmax,v)}else M3.rs=v}m3StepsUI()}
+const m3Near=(sx,sy)=>{const q=P(m3Pos());return q&&Math.hypot(sx-q[0],sy-q[1])<(TOUCH?46:30)};
+function m3Pick(sx,sy){if(!m3Near(sx,sy))return null;M3.drag=true;tone(600,.05,'triangle',.04);
+ return{move(x,y){const h=hitY(x,y,0);if(!h)return;if(M3.app=='plane'){M3.d=+clamp(Math.abs(h[0]),.2,4).toFixed(2);M3.dmin=Math.min(M3.dmin,M3.d);M3.dmax=Math.max(M3.dmax,M3.d);setS('r3',M3.d)}
+  else{const r=Math.hypot(h[0],h[2]);M3.ph=Math.atan2(h[2],h[0]);if(M3.app=='line'){M3.r=+clamp(r,.3,4).toFixed(2);setS('r3',M3.r)}else{M3.rs=+clamp(r,.15,4.5).toFixed(2);setS('r3',M3.rs)}}m3StepsUI()},up(){M3.drag=false}}}
+function drawP(pos,E,dir,t){const q=P(pos);if(!q)return;const pul=.5+.5*Math.sin(t*4);arrow(pos,dir,1.25,'#ffd166',3.5,1);
+ lighter(true);glow(q,15+(M3.drag?7:pul*5),'#ffffff',.9);lighter(false);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(q[0],q[1],5,0,2*PI);ctx.fill();
+ if(!M3.drag&&!M3.walked){ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(q[0],q[1],11+pul*5,0,2*PI);ctx.stroke()}
+ label(add3(pos,[0,.4,0]),'P','#ffffff',15);label(add3(pos,scl(dir,1.75)),`E = ${fmtT(E)} N/C`,'#ffd166',12)}
+function m3Frame(dt,t){const pul=.5+.5*Math.sin(t*5),pos=m3Pos(),E=E3();floor(-3.2);
+ const sk=hi(1)?`rgba(255,255,255,${.35+.45*pul})`:'rgba(200,240,255,.16)',G=a=>`rgba(61,220,151,${a})`,Z=a=>`rgba(140,160,195,${a})`;
+ if(M3.app=='line'){const r=M3.r,h=L3/2;
+  paint(cylQuads('y',r,-h,h,32,G(.15+(hi(3)?.3*pul:0)),Z(.12+(hi(2)?.32*pul:0)),sk));
+  lighter(true);for(const[w,al]of[[12,.12],[6,.3],[2.5,1]])line3([0,-4.6,0],[0,4.6,0],'#ff7a45',w,al);lighter(false);
+  for(let y=-4.2;y<=4.25;y+=.7)label([0,y,0],'+','#fff3e6',11,.9);label([.35,4.6,0],'λ','#ffb27a',15);
+  for(let k=0;k<10;k++){const a=k*2*PI/10+M3.ph+PI/10,d=[Math.cos(a),0,Math.sin(a)];for(const y of[-h/2,h/2])arrow([r*d[0],y,r*d[2]],d,.55,'#ffa53d',2,.9);const a2=a+PI/10,d2=[Math.cos(a2),0,Math.sin(a2)];arrow([r*d2[0],0,r*d2[2]],d2,.42,'#b07cff',1.6,.8)}
+  for(const sg of[1,-1])for(let k=0;k<3;k++){const a=k*2*PI/3+.5,p=[r*.55*Math.cos(a),sg*h,r*.55*Math.sin(a)];arrow(p,[0,sg,0],.45,'#b07cff',1.6,.85);arrow(p,[Math.cos(a),0,Math.sin(a)],.32,'#ffa53d',1.6,.7)}
+  if(showL(2)){label([0,h+.5,0],'∫top = 0  (E ⊥ A)','#c3cfe2',12);label([0,-h-.5,0],'∫bottom = 0  (E ⊥ A)','#c3cfe2',12)}
+  if(showL(3))label([-r*Math.cos(M3.ph),-.45,-r*Math.sin(M3.ph)],'side: E·2πrℓ','#3ddc97',12);
+  ctx.setLineDash([5,4]);line3([0,0,0],pos,'#ffffff',1.5,.7);ctx.setLineDash([]);label(add3(scl(pos,.5),[0,-.32,0]),`r = ${f(M3.r,2)} m`,'#ffffff',12);
+  drawP(pos,E,[Math.cos(M3.ph),0,Math.sin(M3.ph)],t)}
+ else if(M3.app=='plane'){const d=M3.d,rho=Math.sqrt(AC3/PI),pl=3.2;
+  poly3([[0,-pl,-pl],[0,pl,-pl],[0,pl,pl],[0,-pl,pl]],'rgba(255,140,60,.14)','rgba(255,170,90,.6)',1.5);
+  for(let y=-2.4;y<=2.45;y+=1.2)for(let z=-2.4;z<=2.45;z+=1.2)label([0,y,z],'+','#ffb27a',11,.85);label([0,pl+.35,0],'σ','#ffb27a',15);
+  for(const sg of[1,-1])for(const y of[-2.2,2.2])for(const z of[-2.2,2.2])arrow([sg*.25,y,z],[sg,0,0],1.1,'#ffa53d',1.6,.35);
+  paint(cylQuads('x',rho,-d,d,28,Z(.12+(hi(2)?.32*pul:0)),G(.2+(hi(3)?.3*pul:0)),sk));
+  for(const sg of[1,-1]){for(let k=0;k<4;k++){const a=k*PI/2+.7,y=rho*.6*Math.cos(a),z=rho*.6*Math.sin(a);arrow([sg*d,y,z],[sg,0,0],.5,'#ffa53d',2,.9)}arrow([sg*d,-rho*.2,0],[sg,0,0],.4,'#b07cff',1.6,.85);
+   for(let k=0;k<4;k++){const a=k*PI/2+.2;arrow([sg*d*.5,rho*Math.cos(a),rho*Math.sin(a)],[0,Math.cos(a),Math.sin(a)],.35,'#b07cff',1.6,.8)}}
+  if(showL(2))label([d*.5,-rho-.5,0],'∫side = 0  (E ⊥ A)','#c3cfe2',12);
+  if(showL(3)){label([d,rho+.45,0],'E·A','#3ddc97',13);label([-d,rho+.45,0],'E·A','#3ddc97',13)}
+  label([d*.5,-.32,0],`d = ${f(d,2)} m`,'#ffffff',12);
+  drawP(pos,E,[1,0,0],t)}
+ else{const a=M3.a,rs=M3.rs,Ea=sphE(a),e=sphE(rs);
+  const ball=al=>{const q=P([0,0,0]);if(!q)return;const R=a*q[3];lighter(true);glow(q,R*2.2,'#ff7a3d',.5*al);lighter(false);const g=ctx.createRadialGradient(q[0]-R*.3,q[1]-R*.3,R*.1,q[0],q[1],R);g.addColorStop(0,'#ffe2c4');g.addColorStop(.45,'#ff8a3d');g.addColorStop(1,'#8a2a10');ctx.globalAlpha=.85*al;ctx.fillStyle=g;ctx.beginPath();ctx.arc(q[0],q[1],R,0,2*PI);ctx.fill();ctx.globalAlpha=1;for(const p of ballPts)label(scl(p,a),'+','#fff3e6',10,.75*al)};
+  const Gs=()=>paint(sphQuads(rs,10,20,G(.1+(hi(2)||hi(3)?.22*pul:0)),sk));
+  if(rs>a){ball(1);Gs()}else{Gs();ball(.55)}
+  for(let i=0;i<22;i++){const d=fib(22,i);arrow(scl(d,rs),d,.25+.55*e/Ea,'#ffa53d',2,.9)}
+  label([0,-a-.3,0],`a = ${a} m`,'#ffb27a',12);
+  ctx.setLineDash([5,4]);line3([0,0,0],pos,'#ffffff',1.5,.7);ctx.setLineDash([]);label(add3(scl(pos,.5),[0,-.3,0]),`r = ${f(rs,2)} m`,'#ffffff',11);
+  drawP(pos,E,norm(pos),t)}}
+function m3HUD(){const E=E3(),nm={line:'Application 1 · infinite line',plane:'Application 2 · infinite plane',sphere:'Application 3 · charged sphere'}[M3.app],dist=M3.app=='plane'?`d = ${f(M3.d,2)} m`:`r = ${f(M3.app=='line'?M3.r:M3.rs,2)} m`;
+ $('hud').innerHTML=`${mob()?'':`<div class="lbl">${nm}</div>`}<div class="big" style="color:#ffd166">E = ${fmtT(E)} <span style="font-size:12px">N/C</span></div><div style="color:var(--mu)">at P · ${dist}${M3.app=='sphere'?(M3.rs<M3.a?' · inside':' · outside'):''}</div>`;m3Graph()}
+
+/* =====================================================================
+   MODE 4 — CONDUCTORS IN ELECTROSTATIC EQUILIBRIUM  (slides 49–62)
+   ===================================================================== */
+const M4={scene:'slab',on:false,s:0,fa:0,Ex:400,showG:false,r:1.5,vis:new Set(),parts:[],drag:false};
+const A4=1,B4=2,C4=2.6,Q4=1e-6;
+const ions=[];for(const x of[-.6,-.2,.2,.6])for(let i=0;i<6;i++)for(let j=0;j<6;j++)ions.push([x,-1.6+i*.64,-1.6+j*.64]);
+const ease=s=>1-Math.pow(1-s,3);
+const m4Reg=r=>r<A4?1:r<B4?2:r<C4?3:4;
+const m4E=r=>r<A4?0:r<B4?KE*2*Q4/(r*r):r<C4?0:KE*Q4/(r*r);
+CH[3]=[
+ {id:'c4slab',t:'Shield up',d:'Switch on the external field and wait until E inside the slab is zero.',ok:()=>M4.scene=='slab'&&M4.s>=1},
+ {id:'c4gauss',t:'Nothing inside',d:'With the slab in equilibrium, show a Gaussian surface just inside it.',ok:()=>M4.scene=='slab'&&M4.s>=1&&M4.showG},
+ {id:'c4r3',t:'Hidden zero',d:'Example 13: find the region outside the solid sphere where E is zero again.',ok:()=>M4.scene=='shell'&&m4Reg(M4.r)==3},
+ {id:'c4tour',t:'Grand tour',d:'Example 13: take the Gaussian sphere through all four regions.',ok:()=>M4.vis.size>=4}];
+const m4Panel=()=>`<h2>Conductors in Electrostatic Equilibrium</h2>
+<div class="row"><button data-sc="slab" onclick="m4Scene('slab')">Slab in a field</button><button data-sc="shell" onclick="m4Scene('shell')">Example 13: sphere + shell</button></div>
+<div id="m4body"></div>${chHTML(3)}`;
+function m4Body(){const e=$('m4body');if(!e)return;
+ if(M4.scene=='slab')e.innerHTML=`<p class="intro">A conductor is full of <b>free electrons</b> (blue). Switch on an external field and watch them move until the field inside is <b>zero</b>. In reality this takes about 10⁻¹⁶ s; here it’s slowed down.</p>
+<div class="row"><button id="m4on" onclick="m4Toggle()"></button><button onclick="M4.on=false;M4.s=0;M4.fa=0;m4OnUI()">↺ Reset</button></div>
+${sl('Ex','External field E_ext',100,1000,50,M4.Ex,'N/C')}
+<div class="row"><label class="tg"><input type="checkbox" id="t_g4" ${M4.showG?'checked':''}>Show a Gaussian surface just inside</label></div>
+<div class="card"><b>A conductor in equilibrium</b><div class="prop" id="pp1">① The electric field inside is zero</div><div class="prop" id="pp2">② Any net charge sits on the surface</div></div>
+<details><summary>Why?</summary>
+<p><b>Property ①.</b> Electrons move against <span class="vec">E</span><sub>ext</sub>, so negative charge builds up on the left face and positive charge is left on the right face. These charges make their own field <span class="vec">E</span> pointing the other way. The electrons keep moving until |<span class="vec">E</span>| = |<span class="vec">E</span><sub>ext</sub>|, so the net field inside is zero.</p>
+<p><b>Property ②.</b> Take a Gaussian surface just inside the conductor. E = 0 everywhere on it, so the flux is zero and q<sub>in</sub> = 0. It can be as close to the real surface as you like, so any net charge must sit on the surface itself.</p></details>`;
+ else e.innerHTML=`<p class="intro"><b>Example 13.</b> A solid conducting sphere (radius a, charge <span class="pos">+2Q</span>) sits inside a conducting shell (radii b and c, charge <span class="negc">−Q</span>). <b>Drag the green Gaussian sphere</b> through regions ①–④.</p>
+${sl('r4','Gaussian radius r',.1,4.2,.02,M4.r,'m')}
+<div class="card" id="m4reg"></div>
+<div class="card"><b>E versus r</b><canvas id="pl" width="340" height="120"></canvas><div style="color:var(--mu);font-size:12px;margin-top:4px">a = 1 m, b = 2 m, c = 2.6 m, Q = 1 μC</div></div>
+<details><summary>Where does the shell’s charge go?</summary><p>In region ③ the Gaussian sphere lies inside the shell’s metal, where E = 0, so q<sub>in</sub> must be zero. The +2Q on the solid sphere has to be cancelled by <b>−2Q on the shell’s inner surface</b>. The shell only has −Q in total, so <b>+Q is left on its outer surface</b>. That +Q is what you feel in region ④.</p></details>`;
+ m4OnUI()}
+function m4Scene(k){M4.scene=k;document.querySelectorAll('[data-sc]').forEach(b=>b.classList.toggle('on',b.dataset.sc==k));m4Body();resetCam();if(k=='shell')cam.dist=W<H?8.6:10;tone(520,.08,'triangle',.04)}
+function m4Toggle(){M4.on=!M4.on;m4OnUI();tone(M4.on?660:330,.12,'triangle',.05)}
+function m4OnUI(){const b=$('m4on');if(b){b.textContent=M4.on?'⏻ Switch E_ext off':'⚡ Switch E_ext on';b.classList.toggle('on',M4.on)}}
+function m4Input(t){if(t.id=='Ex')M4.Ex=+t.value;if(t.id=='r4')M4.r=+t.value}
+function m4Pick(sx,sy){if(M4.scene!='shell')return null;const o=P([0,0,0]);if(!o)return null;const d=Math.hypot(sx-o[0],sy-o[1]);if(Math.abs(d-M4.r*o[3])>(TOUCH?30:20))return null;M4.drag=true;tone(600,.05,'triangle',.04);
+ return{move(x,y){const o2=P([0,0,0]);M4.r=+clamp(Math.hypot(x-o2[0],y-o2[1])/o2[3],.1,4.2).toFixed(2);setS('r4',M4.r)},up(){M4.drag=false}}}
+function m4Hover(sx,sy){if(M4.scene!='shell')return false;const o=P([0,0,0]);return o&&Math.abs(Math.hypot(sx-o[0],sy-o[1])-M4.r*o[3])<(TOUCH?30:20)}
+function m4Frame(dt,t){M4.scene=='slab'?m4Slab(dt,t):m4Shell(dt,t)}
+function m4Slab(dt,t){
+ M4.s=M4.on?Math.min(1,M4.s+dt/2.6):Math.max(0,M4.s-dt/1.2);M4.fa=clamp(M4.fa+(M4.on?dt*3:-dt*3),0,1);const e=ease(M4.s);
+ const N=Math.round(240*QL);while(M4.parts.length<N)M4.parts.push({x:-5+Math.random()*10,y:(Math.random()*2-1)*1.9,z:(Math.random()*2-1)*1.9});M4.parts.length=Math.min(M4.parts.length,N);
+ floor(-2.6);
+ const bx=(x0,x1,y,z)=>[[x0,-y,-z],[x1,-y,-z],[x1,y,-z],[x0,y,-z],[x0,-y,z],[x1,-y,z],[x1,y,z],[x0,y,z]],V=bx(-.8,.8,2,2),F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]];
+ paint(F.map(f=>({v:f.map(i=>V[i]),c:scl(f.reduce((s,i)=>add3(s,V[i]),[0,0,0]),.25),f:'rgba(170,190,215,.09)',s:'rgba(210,225,245,.45)'})));
+ lighter(true);
+ for(const p of M4.parts){p.x+=2.4*dt;if(p.x>5)p.x=-5;const ins=Math.abs(p.x)<.8,al=(ins?.5*(1-e):.5)*M4.fa;if(al<.02)continue;const a=P([p.x-.4,p.y,p.z]),b=P([p.x,p.y,p.z]);if(!a||!b)continue;
+  ctx.globalAlpha=al;ctx.strokeStyle='#4fd1ff';ctx.lineWidth=clamp(b[3]*.04,1,2.4);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();glow(b,clamp(b[3]*.15,3,7),'#4fd1ff',Math.min(1,al*1.4))}ctx.globalAlpha=1;
+ for(const io of ions){const q=P(io);if(q)glow(q,clamp(q[3]*.16,4,8),'#ff5a6a',.9)}
+ for(const io of ions){const q=P([Math.max(-.78,io[0]-.4*e),io[1],io[2]]);if(q)glow(q,clamp(q[3]*.17,4,8.5),'#4d8bff',1)}
+ lighter(false);
+ if(M4.showG){const Gb=bx(-.45,.45,1.8,1.8);ctx.setLineDash([6,5]);for(const[i,j]of[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]])line3(Gb[i],Gb[j],'#3ddc97',1.8,.95);ctx.setLineDash([]);
+  label([0,-2.45,1.9],e>=.999?'Gaussian surface: E = 0 ⇒ q_in = 0':'Gaussian surface (wait for equilibrium)','#3ddc97',12)}
+ if(M4.fa>.05){label([-3.4,2.45,0],'E_ext  →','#4fd1ff',14,M4.fa);arrow([-.65,2.55,0],[1,0,0],1.3,'#ffffff',2.5,M4.fa);label([1.05,2.55,0],'E_ext','#ffffff',12,M4.fa)}
+ if(e>.03){arrow([.65,3.0,0],[-1,0,0],1.3*e,'#7aa7ff',2.5);label([-1.05,3.0,0],'E (charges)','#9cc0ff',12,Math.min(1,e*2))}
+ if(e>.3){label([-.95,2.3,0],'− − −','#8fb6ff',18,e);label([.95,2.3,0],'+ + +','#ff8a96',18,e);label([-.95,-2.35,0],'− face','#8fb6ff',12,e);label([.95,-2.35,0],'+ face','#ff8a96',12,e)}
+}
+function m4Shell(dt,t){const o=P([0,0,0]);if(!o)return;const s=o[3],X=o[0],Y=o[1],R=r=>r*s,rot=t*.15,rr=M4.r,reg=m4Reg(rr),E=m4E(rr);M4.vis.add(reg);
+ ctx.beginPath();ctx.arc(X,Y,R(C4),0,2*PI);ctx.arc(X,Y,R(B4),0,2*PI,true);ctx.fillStyle=reg==3?'rgba(77,139,255,.36)':'rgba(77,139,255,.24)';ctx.fill();
+ ctx.strokeStyle='rgba(140,180,255,.75)';ctx.lineWidth=1.5;for(const r of[B4,C4]){ctx.beginPath();ctx.arc(X,Y,R(r),0,2*PI);ctx.stroke()}
+ const g=ctx.createRadialGradient(X-R(A4)*.3,Y-R(A4)*.3,R(A4)*.1,X,Y,R(A4));g.addColorStop(0,'#ffe2c4');g.addColorStop(.5,'#ff8a3d');g.addColorStop(1,'#8a2a10');ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y,R(A4),0,2*PI);ctx.fill();
+ const dots=(r,n,col,ph,sym)=>{lighter(true);for(let k=0;k<n;k++){const a=ph+k*2*PI/n;glow([X+r*Math.cos(a),Y+r*Math.sin(a)],8,col,.95)}lighter(false);ctx.fillStyle='#fff';ctx.font='900 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';for(let k=0;k<n;k++){const a=ph+k*2*PI/n;ctx.fillText(sym,X+r*Math.cos(a),Y+r*Math.sin(a)+.5)}};
+ dots(R(A4)-4,16,'#ff5a6a',rot,'+');dots(R(B4)+4,16,'#4d8bff',-rot,'−');dots(R(C4)-4,8,'#ff5a6a',rot*.7,'+');
+ const rl=(r,a,txt,col,sz=15)=>{ctx.font=`800 ${sz}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.strokeStyle='rgba(5,8,15,.85)';const x=X+R(r)*Math.cos(a),y=Y+R(r)*Math.sin(a);ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y)};
+ [[.5,'①'],[1.5,'②'],[2.3,'③'],[3.3,'④']].forEach(([r,tx],i)=>rl(r,-.75,tx,reg==i+1?'#ffd166':'#c3cfe2',reg==i+1?18:15));
+ rl(A4*.45,PI*.75,'+2Q','#fff3e6',12);rl(C4+.45,PI*.8,'shell: −Q','#9cc0ff',12);
+ ctx.setLineDash([7,6]);ctx.lineDashOffset=-t*25;ctx.strokeStyle='#3ddc97';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(X,Y,R(rr),0,2*PI);ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0;
+ if(E>0){const Em=KE*2*Q4/(A4*A4);for(let k=0;k<12;k++){const a=k*PI/6+.26,ux=Math.cos(a),uy=Math.sin(a),L=(.3+.85*E/Em)*s,x0=X+R(rr)*ux,y0=Y+R(rr)*uy;arrow2(x0,y0,x0+ux*L,y0+uy*L,'#ffa53d',2.2,.95)}}
+ const ha=.6,hx=X+R(rr)*Math.cos(ha),hy=Y+R(rr)*Math.sin(ha),pul=.5+.5*Math.sin(t*5);lighter(true);glow([hx,hy],13+(M4.drag?6:pul*4),'#3ddc97',.9);lighter(false);ctx.fillStyle='#eafff6';ctx.beginPath();ctx.arc(hx,hy,5,0,2*PI);ctx.fill();
+ ctx.font='700 12px system-ui';ctx.textAlign='left';ctx.lineWidth=3;ctx.strokeStyle='rgba(5,8,15,.85)';const tx=mob()?`r = ${f(rr,2)} m`:`r = ${f(rr,2)} m · E = ${fmtT(E)} N/C`,tw=ctx.measureText(tx).width,tx0=hx+12+tw>W-6?hx-12-tw:hx+12;ctx.strokeText(tx,tx0,hy+14);ctx.fillStyle='#d9ffef';ctx.fillText(tx,tx0,hy+14)}
+function m4HUD(){if(M4.scene=='slab'){const e=ease(M4.s),Ein=M4.on||M4.s>0?M4.Ex*(1-e):0,pp1=$('pp1'),pp2=$('pp2');if(pp1)pp1.classList.toggle('ok',M4.s>=1);if(pp2)pp2.classList.toggle('ok',M4.s>=1&&M4.showG);
+  $('hud').innerHTML=`${mob()?'':'<div class="lbl">Net field inside the conductor</div>'}<div class="big" style="color:${Ein<1?'#3ddc97':'#4fd1ff'}">E<sub>in</sub> = ${f(Ein,0)} <span style="font-size:12px">N/C</span></div><div class="hb"><i style="width:${M4.on||M4.s>0?(1-e)*100:0}%;background:#4fd1ff"></i></div><div style="color:var(--mu)">${!M4.on&&M4.s==0?'No field yet: charges evenly mixed':M4.s>=1?'Equilibrium ✓':`t ≈ ${f(M4.s,2)} × 10⁻¹⁶ s`}</div>`;return}
+ const r=M4.r,reg=m4Reg(r),E=m4E(r),qin=['0','+2Q','+2Q − 2Q = 0','+2Q − Q = +Q'][reg-1];
+ $('hud').innerHTML=`<div class="lbl">Region ${'①②③④'[reg-1]}</div><div class="big" style="color:${E?'#ffa53d':'#3ddc97'}">E = ${fmtT(E)} <span style="font-size:12px">N/C</span></div><div style="color:var(--mu)">q<sub>in</sub> = ${qin}</div>`;
+ const c=$('m4reg');if(c){const Ev=fmtT(E);c.innerHTML=[`<b>Region ① (r < a)</b><div class="m">Inside a conductor in equilibrium, q<sub>in</sub> = 0<br>∮<span class="vec">E</span>·d<span class="vec">A</span> = 0 ⇒ <b class="ans">E₁ = 0</b></div>`,
+  `<b>Region ② (a < r < b)</b><div class="m">q<sub>in</sub> = +2Q, the charge on the solid sphere<br>E(4πr²) = 2Q/ε₀ ⇒ E₂ = k<sub>e</sub>·2Q/r² = <b class="ans">${Ev} N/C</b></div>`,
+  `<b>Region ③ (b < r < c)</b><div class="m">Inside the shell, also a conductor: <b class="ans">E₃ = 0</b><br><span class="z">So q<sub>in</sub> = 0: the shell’s inner surface must carry −2Q.</span></div>`,
+  `<b>Region ④ (r > c)</b><div class="m">q<sub>in</sub> = 2Q + (−Q) = +Q<br>E(4πr²) = Q/ε₀ ⇒ E₄ = k<sub>e</sub>Q/r² = <b class="ans">${Ev} N/C</b></div>`][reg-1]}
+ plotE(m4E,4.2,'r (m)',r,KE*2*Q4/(A4*A4)*1.05,[[A4,'a'],[B4,'b'],[C4,'c']])}
+
+/* =====================================================================
+   wiring
+   ===================================================================== */
+const MODES=[
+ {panel:m1Panel,frame:m1Frame,hud:m1HUD,pick:m1Pick,hover:m1Hover,input:m1Input,cam:[.85,.36,11.5,1.2],tip:'Drag the pink handle to tilt the sheet · drag elsewhere to orbit · pinch / scroll to zoom',tipM:'Drag the pink handle to tilt · pinch to zoom'},
+ {panel:m2Panel,frame:m2Frame,hud:m2HUD,pick:m2Pick,hover:m2Hover,input:m2Input,cam:[-.75,.62,15,1.1],tip:'Drag charges to move them · drag one off the edge to delete · drag empty space to orbit',tipM:'Drag charges · fling one off the edge to delete'},
+ {panel:m3Panel,frame:m3Frame,hud:m3HUD,pick:m3Pick,hover:m3Near,input:m3Input,cam:[-.55,.32,11.5,.95],tip:'Drag P to choose where to find E · drag elsewhere to orbit',tipM:'Drag P to move the point'},
+ {panel:m4Panel,frame:m4Frame,hud:m4HUD,pick:m4Pick,hover:m4Hover,input:m4Input,cam:[1.32,.16,10,1.3],tip:'Slab: switch on the field · Example 13: drag the green circle',tipM:'Switch on the field, or drag the green circle'}];
+function resetCam(){const c=MODES[cur].cam,narrow=W<H;[cam.az,cam.el,cam.dist]=[c[0],c[1],c[2]*(narrow?c[3]:1)]}
+function go(i){cur=i;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m==i));$('pn').innerHTML=MODES[i].panel();$('pn').scrollTop=0;$('tip').textContent=mob()?MODES[i].tipM:MODES[i].tip;$('tip').classList.remove('hide');resetCam();
+ if(i==2)m3App(M3.app);if(i==3)m4Scene(M4.scene);try{localStorage.setItem('fluxlab-mode',i)}catch(e){}idle=0}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){go(+b.dataset.m);tone(600,.06,'triangle',.03)}});
+$('rv').onclick=resetCam;
+$('pn').addEventListener('input',e=>{const t=e.target;if(t.type=='range'){$('o_'+t.id).textContent=t.value+' '+t.dataset.u;MODES[cur].input(t)}});
+$('pn').addEventListener('change',e=>{const t=e.target;if(t.type!='checkbox')return;if(t.id=='t_l')M2.show.l=t.checked;if(t.id=='t_f')M2.show.f=t.checked;if(t.id=='t_s')M2.show.s=t.checked;if(t.id=='t_g4')M4.showG=t.checked});
+/* pointer input: drag objects, orbit, pinch */
+const ptr=new Map();let pd=0,handler=null,idle=0;
+cv.addEventListener('pointerdown',e=>{au();$('tip').classList.add('hide');cv.setPointerCapture(e.pointerId);const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ptr.set(e.pointerId,[x,y]);idle=0;
+ if(ptr.size==1){handler=MODES[cur].pick(x,y);cv.style.cursor='grabbing'}else{if(handler&&handler.up)handler.up();handler=null}});
+cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,o=ptr.get(e.pointerId);
+ if(!o){cv.style.cursor=MODES[cur].hover(x,y)?'pointer':'grab';return}idle=0;
+ if(ptr.size==1){if(handler)handler.move(x,y);else{cam.az-=(x-o[0])*.008;cam.el=clamp(cam.el+(y-o[1])*.008,-1.35,1.35)}}
+ ptr.set(e.pointerId,[x,y]);
+ if(ptr.size==2){const[a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pd)cam.dist=clamp(cam.dist*pd/d,5,32);pd=d}});
+const pup=e=>{ptr.delete(e.pointerId);pd=0;if(!ptr.size){if(handler&&handler.up)handler.up();handler=null;cv.style.cursor='grab'}};
+cv.addEventListener('pointerup',pup);cv.addEventListener('pointercancel',pup);
+cv.addEventListener('wheel',e=>{e.preventDefault();cam.dist=clamp(cam.dist*Math.exp(e.deltaY*.001),5,32)},{passive:false});
+/* main loop */
+let last=performance.now(),fr=0,ftSum=0,ftN=0;
+function loop(now){requestAnimationFrame(loop);const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;fr++;idle+=dt;
+ if(!document.hidden&&raw<.25){ftSum+=raw;ftN++;if(ftN>=90){const avg=ftSum/ftN;ftSum=ftN=0;if(avg>.03&&QL>.5){QL-=.25;if(DPRMAX>1){DPRMAX=Math.max(1,DPRMAX-.5);resize()}}}}
+ camUpdate();ctx.clearRect(0,0,W,H);MODES[cur].frame(dt,now/1000);
+ if(fr%5==0)MODES[cur].hud();if(fr%10==0)checkCh();fxFrame()}
+updStars();let m0=0;try{m0=+(localStorage.getItem('fluxlab-mode')||0)}catch(e){}go(m0>=0&&m0<4?m0:0);requestAnimationFrame(loop);
+</script></body></html>
