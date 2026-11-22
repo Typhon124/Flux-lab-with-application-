@@ -35,8 +35,8 @@ main{flex:1;min-height:0;display:flex}
 aside{width:380px;overflow:auto;background:var(--pn);border-left:1px solid var(--ln);padding:14px 14px 30px}
 @media(max-width:820px){
  header{padding:6px 8px;gap:6px}.brand{font-size:15px}.brand span{display:none}
- nav{order:3;flex-basis:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
- nav button{padding:8px 2px;font-size:12.5px;min-height:38px}nav .lg{display:none}nav .sm{display:inline}
+ nav{order:3;flex-basis:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+ nav button{padding:8px 4px;font-size:13.5px;min-height:38px}nav .lg{display:none}nav .sm{display:inline}
  #stars{padding:4px 9px;font-size:13px}#snd{padding:5px 10px;min-height:34px}
  main{flex-direction:column}
  #stage{flex:none;height:50vh;height:50svh}
@@ -123,7 +123,7 @@ button:disabled{opacity:.4}
 <body>
 <header>
  <div class="brand"><i>⚡</i>Flux Lab<span style="color:var(--mu);font-weight:500;font-size:13px">&nbsp;· Electric flux &amp; Gauss’s law</span></div>
- <nav id="tabs"><button data-m="0"><span class="lg">1 · Flux Catcher</span><span class="sm">⚡ Flux</span></button><button data-m="1"><span class="lg">2 · Gauss Arena</span><span class="sm">◎ Gauss</span></button><button data-m="2"><span class="lg">3 · Applying Gauss</span><span class="sm">∮ Apply</span></button><button data-m="3"><span class="lg">4 · Conductors</span><span class="sm">▣ Conductors</span></button></nav>
+ <nav id="tabs"><button data-m="0"><span class="lg">1 · Flux Catcher</span><span class="sm">⚡ Flux</span></button><button data-m="1"><span class="lg">2 · Gauss Arena</span><span class="sm">◎ Gauss</span></button><button data-m="2"><span class="lg">3 · Applying Gauss</span><span class="sm">∮ Apply</span></button></nav>
  <div class="right"><span id="stars">★ 0/14</span><button id="snd" title="Sound on/off" aria-label="Toggle sound">🔊</button></div>
 </header>
 <main>
@@ -489,101 +489,19 @@ function m3HUD(){const E=E3(),nm={line:'Application 1 · infinite line',plane:'A
  $('hud').innerHTML=`${mob()?'':`<div class="lbl">${nm}</div>`}<div class="big" style="color:#ffd166">E = ${fmtT(E)} <span style="font-size:12px">N/C</span></div><div style="color:var(--mu)">at P · ${dist}${M3.app=='sphere'?(M3.rs<M3.a?' · inside':' · outside'):''}</div>`;m3Graph()}
 
 /* =====================================================================
-   MODE 4 — CONDUCTORS IN ELECTROSTATIC EQUILIBRIUM  (slides 49–62)
-   ===================================================================== */
-const M4={scene:'slab',on:false,s:0,fa:0,Ex:400,showG:false,r:1.5,vis:new Set(),parts:[],drag:false};
-const A4=1,B4=2,C4=2.6,Q4=1e-6;
-const ions=[];for(const x of[-.6,-.2,.2,.6])for(let i=0;i<6;i++)for(let j=0;j<6;j++)ions.push([x,-1.6+i*.64,-1.6+j*.64]);
-const ease=s=>1-Math.pow(1-s,3);
-const m4Reg=r=>r<A4?1:r<B4?2:r<C4?3:4;
-const m4E=r=>r<A4?0:r<B4?KE*2*Q4/(r*r):r<C4?0:KE*Q4/(r*r);
-CH[3]=[
- {id:'c4slab',t:'Shield up',d:'Switch on the external field and wait until E inside the slab is zero.',ok:()=>M4.scene=='slab'&&M4.s>=1},
- {id:'c4gauss',t:'Nothing inside',d:'With the slab in equilibrium, show a Gaussian surface just inside it.',ok:()=>M4.scene=='slab'&&M4.s>=1&&M4.showG},
- {id:'c4r3',t:'Hidden zero',d:'Example 13: find the region outside the solid sphere where E is zero again.',ok:()=>M4.scene=='shell'&&m4Reg(M4.r)==3},
- {id:'c4tour',t:'Grand tour',d:'Example 13: take the Gaussian sphere through all four regions.',ok:()=>M4.vis.size>=4}];
-const m4Panel=()=>`<h2>Conductors in Electrostatic Equilibrium</h2>
-<div class="row"><button data-sc="slab" onclick="m4Scene('slab')">Slab in a field</button><button data-sc="shell" onclick="m4Scene('shell')">Example 13: sphere + shell</button></div>
-<div id="m4body"></div>${chHTML(3)}`;
-function m4Body(){const e=$('m4body');if(!e)return;
- if(M4.scene=='slab')e.innerHTML=`<p class="intro">A conductor is full of <b>free electrons</b> (blue). Switch on an external field and watch them move until the field inside is <b>zero</b>. In reality this takes about 10⁻¹⁶ s; here it’s slowed down.</p>
-<div class="row"><button id="m4on" onclick="m4Toggle()"></button><button onclick="M4.on=false;M4.s=0;M4.fa=0;m4OnUI()">↺ Reset</button></div>
-${sl('Ex','External field E_ext',100,1000,50,M4.Ex,'N/C')}
-<div class="row"><label class="tg"><input type="checkbox" id="t_g4" ${M4.showG?'checked':''}>Show a Gaussian surface just inside</label></div>
-<div class="card"><b>A conductor in equilibrium</b><div class="prop" id="pp1">① The electric field inside is zero</div><div class="prop" id="pp2">② Any net charge sits on the surface</div></div>
-<details><summary>Why?</summary>
-<p><b>Property ①.</b> Electrons move against <span class="vec">E</span><sub>ext</sub>, so negative charge builds up on the left face and positive charge is left on the right face. These charges make their own field <span class="vec">E</span> pointing the other way. The electrons keep moving until |<span class="vec">E</span>| = |<span class="vec">E</span><sub>ext</sub>|, so the net field inside is zero.</p>
-<p><b>Property ②.</b> Take a Gaussian surface just inside the conductor. E = 0 everywhere on it, so the flux is zero and q<sub>in</sub> = 0. It can be as close to the real surface as you like, so any net charge must sit on the surface itself.</p></details>`;
- else e.innerHTML=`<p class="intro"><b>Example 13.</b> A solid conducting sphere (radius a, charge <span class="pos">+2Q</span>) sits inside a conducting shell (radii b and c, charge <span class="negc">−Q</span>). <b>Drag the green Gaussian sphere</b> through regions ①–④.</p>
-${sl('r4','Gaussian radius r',.1,4.2,.02,M4.r,'m')}
-<div class="card" id="m4reg"></div>
-<div class="card"><b>E versus r</b><canvas id="pl" width="340" height="120"></canvas><div style="color:var(--mu);font-size:12px;margin-top:4px">a = 1 m, b = 2 m, c = 2.6 m, Q = 1 μC</div></div>
-<details><summary>Where does the shell’s charge go?</summary><p>In region ③ the Gaussian sphere lies inside the shell’s metal, where E = 0, so q<sub>in</sub> must be zero. The +2Q on the solid sphere has to be cancelled by <b>−2Q on the shell’s inner surface</b>. The shell only has −Q in total, so <b>+Q is left on its outer surface</b>. That +Q is what you feel in region ④.</p></details>`;
- m4OnUI()}
-function m4Scene(k){M4.scene=k;document.querySelectorAll('[data-sc]').forEach(b=>b.classList.toggle('on',b.dataset.sc==k));m4Body();resetCam();if(k=='shell')cam.dist=W<H?8.6:10;tone(520,.08,'triangle',.04)}
-function m4Toggle(){M4.on=!M4.on;m4OnUI();tone(M4.on?660:330,.12,'triangle',.05)}
-function m4OnUI(){const b=$('m4on');if(b){b.textContent=M4.on?'⏻ Switch E_ext off':'⚡ Switch E_ext on';b.classList.toggle('on',M4.on)}}
-function m4Input(t){if(t.id=='Ex')M4.Ex=+t.value;if(t.id=='r4')M4.r=+t.value}
-function m4Pick(sx,sy){if(M4.scene!='shell')return null;const o=P([0,0,0]);if(!o)return null;const d=Math.hypot(sx-o[0],sy-o[1]);if(Math.abs(d-M4.r*o[3])>(TOUCH?30:20))return null;M4.drag=true;tone(600,.05,'triangle',.04);
- return{move(x,y){const o2=P([0,0,0]);M4.r=+clamp(Math.hypot(x-o2[0],y-o2[1])/o2[3],.1,4.2).toFixed(2);setS('r4',M4.r)},up(){M4.drag=false}}}
-function m4Hover(sx,sy){if(M4.scene!='shell')return false;const o=P([0,0,0]);return o&&Math.abs(Math.hypot(sx-o[0],sy-o[1])-M4.r*o[3])<(TOUCH?30:20)}
-function m4Frame(dt,t){M4.scene=='slab'?m4Slab(dt,t):m4Shell(dt,t)}
-function m4Slab(dt,t){
- M4.s=M4.on?Math.min(1,M4.s+dt/2.6):Math.max(0,M4.s-dt/1.2);M4.fa=clamp(M4.fa+(M4.on?dt*3:-dt*3),0,1);const e=ease(M4.s);
- const N=Math.round(240*QL);while(M4.parts.length<N)M4.parts.push({x:-5+Math.random()*10,y:(Math.random()*2-1)*1.9,z:(Math.random()*2-1)*1.9});M4.parts.length=Math.min(M4.parts.length,N);
- floor(-2.6);
- const bx=(x0,x1,y,z)=>[[x0,-y,-z],[x1,-y,-z],[x1,y,-z],[x0,y,-z],[x0,-y,z],[x1,-y,z],[x1,y,z],[x0,y,z]],V=bx(-.8,.8,2,2),F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]];
- paint(F.map(f=>({v:f.map(i=>V[i]),c:scl(f.reduce((s,i)=>add3(s,V[i]),[0,0,0]),.25),f:'rgba(170,190,215,.09)',s:'rgba(210,225,245,.45)'})));
- lighter(true);
- for(const p of M4.parts){p.x+=2.4*dt;if(p.x>5)p.x=-5;const ins=Math.abs(p.x)<.8,al=(ins?.5*(1-e):.5)*M4.fa;if(al<.02)continue;const a=P([p.x-.4,p.y,p.z]),b=P([p.x,p.y,p.z]);if(!a||!b)continue;
-  ctx.globalAlpha=al;ctx.strokeStyle='#4fd1ff';ctx.lineWidth=clamp(b[3]*.04,1,2.4);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();glow(b,clamp(b[3]*.15,3,7),'#4fd1ff',Math.min(1,al*1.4))}ctx.globalAlpha=1;
- for(const io of ions){const q=P(io);if(q)glow(q,clamp(q[3]*.16,4,8),'#ff5a6a',.9)}
- for(const io of ions){const q=P([Math.max(-.78,io[0]-.4*e),io[1],io[2]]);if(q)glow(q,clamp(q[3]*.17,4,8.5),'#4d8bff',1)}
- lighter(false);
- if(M4.showG){const Gb=bx(-.45,.45,1.8,1.8);ctx.setLineDash([6,5]);for(const[i,j]of[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]])line3(Gb[i],Gb[j],'#3ddc97',1.8,.95);ctx.setLineDash([]);
-  label([0,-2.45,1.9],e>=.999?'Gaussian surface: E = 0 ⇒ q_in = 0':'Gaussian surface (wait for equilibrium)','#3ddc97',12)}
- if(M4.fa>.05){label([-3.4,2.45,0],'E_ext  →','#4fd1ff',14,M4.fa);arrow([-.65,2.55,0],[1,0,0],1.3,'#ffffff',2.5,M4.fa);label([1.05,2.55,0],'E_ext','#ffffff',12,M4.fa)}
- if(e>.03){arrow([.65,3.0,0],[-1,0,0],1.3*e,'#7aa7ff',2.5);label([-1.05,3.0,0],'E (charges)','#9cc0ff',12,Math.min(1,e*2))}
- if(e>.3){label([-.95,2.3,0],'− − −','#8fb6ff',18,e);label([.95,2.3,0],'+ + +','#ff8a96',18,e);label([-.95,-2.35,0],'− face','#8fb6ff',12,e);label([.95,-2.35,0],'+ face','#ff8a96',12,e)}
-}
-function m4Shell(dt,t){const o=P([0,0,0]);if(!o)return;const s=o[3],X=o[0],Y=o[1],R=r=>r*s,rot=t*.15,rr=M4.r,reg=m4Reg(rr),E=m4E(rr);M4.vis.add(reg);
- ctx.beginPath();ctx.arc(X,Y,R(C4),0,2*PI);ctx.arc(X,Y,R(B4),0,2*PI,true);ctx.fillStyle=reg==3?'rgba(77,139,255,.36)':'rgba(77,139,255,.24)';ctx.fill();
- ctx.strokeStyle='rgba(140,180,255,.75)';ctx.lineWidth=1.5;for(const r of[B4,C4]){ctx.beginPath();ctx.arc(X,Y,R(r),0,2*PI);ctx.stroke()}
- const g=ctx.createRadialGradient(X-R(A4)*.3,Y-R(A4)*.3,R(A4)*.1,X,Y,R(A4));g.addColorStop(0,'#ffe2c4');g.addColorStop(.5,'#ff8a3d');g.addColorStop(1,'#8a2a10');ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y,R(A4),0,2*PI);ctx.fill();
- const dots=(r,n,col,ph,sym)=>{lighter(true);for(let k=0;k<n;k++){const a=ph+k*2*PI/n;glow([X+r*Math.cos(a),Y+r*Math.sin(a)],8,col,.95)}lighter(false);ctx.fillStyle='#fff';ctx.font='900 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';for(let k=0;k<n;k++){const a=ph+k*2*PI/n;ctx.fillText(sym,X+r*Math.cos(a),Y+r*Math.sin(a)+.5)}};
- dots(R(A4)-4,16,'#ff5a6a',rot,'+');dots(R(B4)+4,16,'#4d8bff',-rot,'−');dots(R(C4)-4,8,'#ff5a6a',rot*.7,'+');
- const rl=(r,a,txt,col,sz=15)=>{ctx.font=`800 ${sz}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=4;ctx.strokeStyle='rgba(5,8,15,.85)';const x=X+R(r)*Math.cos(a),y=Y+R(r)*Math.sin(a);ctx.strokeText(txt,x,y);ctx.fillStyle=col;ctx.fillText(txt,x,y)};
- [[.5,'①'],[1.5,'②'],[2.3,'③'],[3.3,'④']].forEach(([r,tx],i)=>rl(r,-.75,tx,reg==i+1?'#ffd166':'#c3cfe2',reg==i+1?18:15));
- rl(A4*.45,PI*.75,'+2Q','#fff3e6',12);rl(C4+.45,PI*.8,'shell: −Q','#9cc0ff',12);
- ctx.setLineDash([7,6]);ctx.lineDashOffset=-t*25;ctx.strokeStyle='#3ddc97';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(X,Y,R(rr),0,2*PI);ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0;
- if(E>0){const Em=KE*2*Q4/(A4*A4);for(let k=0;k<12;k++){const a=k*PI/6+.26,ux=Math.cos(a),uy=Math.sin(a),L=(.3+.85*E/Em)*s,x0=X+R(rr)*ux,y0=Y+R(rr)*uy;arrow2(x0,y0,x0+ux*L,y0+uy*L,'#ffa53d',2.2,.95)}}
- const ha=.6,hx=X+R(rr)*Math.cos(ha),hy=Y+R(rr)*Math.sin(ha),pul=.5+.5*Math.sin(t*5);lighter(true);glow([hx,hy],13+(M4.drag?6:pul*4),'#3ddc97',.9);lighter(false);ctx.fillStyle='#eafff6';ctx.beginPath();ctx.arc(hx,hy,5,0,2*PI);ctx.fill();
- ctx.font='700 12px system-ui';ctx.textAlign='left';ctx.lineWidth=3;ctx.strokeStyle='rgba(5,8,15,.85)';const tx=mob()?`r = ${f(rr,2)} m`:`r = ${f(rr,2)} m · E = ${fmtT(E)} N/C`,tw=ctx.measureText(tx).width,tx0=hx+12+tw>W-6?hx-12-tw:hx+12;ctx.strokeText(tx,tx0,hy+14);ctx.fillStyle='#d9ffef';ctx.fillText(tx,tx0,hy+14)}
-function m4HUD(){if(M4.scene=='slab'){const e=ease(M4.s),Ein=M4.on||M4.s>0?M4.Ex*(1-e):0,pp1=$('pp1'),pp2=$('pp2');if(pp1)pp1.classList.toggle('ok',M4.s>=1);if(pp2)pp2.classList.toggle('ok',M4.s>=1&&M4.showG);
-  $('hud').innerHTML=`${mob()?'':'<div class="lbl">Net field inside the conductor</div>'}<div class="big" style="color:${Ein<1?'#3ddc97':'#4fd1ff'}">E<sub>in</sub> = ${f(Ein,0)} <span style="font-size:12px">N/C</span></div><div class="hb"><i style="width:${M4.on||M4.s>0?(1-e)*100:0}%;background:#4fd1ff"></i></div><div style="color:var(--mu)">${!M4.on&&M4.s==0?'No field yet: charges evenly mixed':M4.s>=1?'Equilibrium ✓':`t ≈ ${f(M4.s,2)} × 10⁻¹⁶ s`}</div>`;return}
- const r=M4.r,reg=m4Reg(r),E=m4E(r),qin=['0','+2Q','+2Q − 2Q = 0','+2Q − Q = +Q'][reg-1];
- $('hud').innerHTML=`<div class="lbl">Region ${'①②③④'[reg-1]}</div><div class="big" style="color:${E?'#ffa53d':'#3ddc97'}">E = ${fmtT(E)} <span style="font-size:12px">N/C</span></div><div style="color:var(--mu)">q<sub>in</sub> = ${qin}</div>`;
- const c=$('m4reg');if(c){const Ev=fmtT(E);c.innerHTML=[`<b>Region ① (r < a)</b><div class="m">Inside a conductor in equilibrium, q<sub>in</sub> = 0<br>∮<span class="vec">E</span>·d<span class="vec">A</span> = 0 ⇒ <b class="ans">E₁ = 0</b></div>`,
-  `<b>Region ② (a < r < b)</b><div class="m">q<sub>in</sub> = +2Q, the charge on the solid sphere<br>E(4πr²) = 2Q/ε₀ ⇒ E₂ = k<sub>e</sub>·2Q/r² = <b class="ans">${Ev} N/C</b></div>`,
-  `<b>Region ③ (b < r < c)</b><div class="m">Inside the shell, also a conductor: <b class="ans">E₃ = 0</b><br><span class="z">So q<sub>in</sub> = 0: the shell’s inner surface must carry −2Q.</span></div>`,
-  `<b>Region ④ (r > c)</b><div class="m">q<sub>in</sub> = 2Q + (−Q) = +Q<br>E(4πr²) = Q/ε₀ ⇒ E₄ = k<sub>e</sub>Q/r² = <b class="ans">${Ev} N/C</b></div>`][reg-1]}
- plotE(m4E,4.2,'r (m)',r,KE*2*Q4/(A4*A4)*1.05,[[A4,'a'],[B4,'b'],[C4,'c']])}
-
-/* =====================================================================
    wiring
    ===================================================================== */
 const MODES=[
  {panel:m1Panel,frame:m1Frame,hud:m1HUD,pick:m1Pick,hover:m1Hover,input:m1Input,cam:[.85,.36,11.5,1.2],tip:'Drag the pink handle to tilt the sheet · drag elsewhere to orbit · pinch / scroll to zoom',tipM:'Drag the pink handle to tilt · pinch to zoom'},
  {panel:m2Panel,frame:m2Frame,hud:m2HUD,pick:m2Pick,hover:m2Hover,input:m2Input,cam:[-.75,.62,15,1.1],tip:'Drag charges to move them · drag one off the edge to delete · drag empty space to orbit',tipM:'Drag charges · fling one off the edge to delete'},
- {panel:m3Panel,frame:m3Frame,hud:m3HUD,pick:m3Pick,hover:m3Near,input:m3Input,cam:[-.55,.32,11.5,.95],tip:'Drag P to choose where to find E · drag elsewhere to orbit',tipM:'Drag P to move the point'},
- {panel:m4Panel,frame:m4Frame,hud:m4HUD,pick:m4Pick,hover:m4Hover,input:m4Input,cam:[1.32,.16,10,1.3],tip:'Slab: switch on the field · Example 13: drag the green circle',tipM:'Switch on the field, or drag the green circle'}];
+ {panel:m3Panel,frame:m3Frame,hud:m3HUD,pick:m3Pick,hover:m3Near,input:m3Input,cam:[-.55,.32,11.5,.95],tip:'Drag P to choose where to find E · drag elsewhere to orbit',tipM:'Drag P to move the point'}];
 function resetCam(){const c=MODES[cur].cam,narrow=W<H;[cam.az,cam.el,cam.dist]=[c[0],c[1],c[2]*(narrow?c[3]:1)]}
 function go(i){cur=i;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m==i));$('pn').innerHTML=MODES[i].panel();$('pn').scrollTop=0;$('tip').textContent=mob()?MODES[i].tipM:MODES[i].tip;$('tip').classList.remove('hide');resetCam();
- if(i==2)m3App(M3.app);if(i==3)m4Scene(M4.scene);try{localStorage.setItem('fluxlab-mode',i)}catch(e){}idle=0}
+ if(i==2)m3App(M3.app);try{localStorage.setItem('fluxlab3-mode',i)}catch(e){}idle=0}
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){go(+b.dataset.m);tone(600,.06,'triangle',.03)}});
 $('rv').onclick=resetCam;
 $('pn').addEventListener('input',e=>{const t=e.target;if(t.type=='range'){$('o_'+t.id).textContent=t.value+' '+t.dataset.u;MODES[cur].input(t)}});
-$('pn').addEventListener('change',e=>{const t=e.target;if(t.type!='checkbox')return;if(t.id=='t_l')M2.show.l=t.checked;if(t.id=='t_f')M2.show.f=t.checked;if(t.id=='t_s')M2.show.s=t.checked;if(t.id=='t_g4')M4.showG=t.checked});
+$('pn').addEventListener('change',e=>{const t=e.target;if(t.type!='checkbox')return;if(t.id=='t_l')M2.show.l=t.checked;if(t.id=='t_f')M2.show.f=t.checked;if(t.id=='t_s')M2.show.s=t.checked;});
 /* pointer input: drag objects, orbit, pinch */
 const ptr=new Map();let pd=0,handler=null,idle=0;
 cv.addEventListener('pointerdown',e=>{au();$('tip').classList.add('hide');cv.setPointerCapture(e.pointerId);const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ptr.set(e.pointerId,[x,y]);idle=0;
@@ -602,5 +520,5 @@ function loop(now){requestAnimationFrame(loop);const raw=(now-last)/1000,dt=Math
  if(!document.hidden&&raw<.25){ftSum+=raw;ftN++;if(ftN>=90){const avg=ftSum/ftN;ftSum=ftN=0;if(avg>.03&&QL>.5){QL-=.25;if(DPRMAX>1){DPRMAX=Math.max(1,DPRMAX-.5);resize()}}}}
  camUpdate();ctx.clearRect(0,0,W,H);MODES[cur].frame(dt,now/1000);
  if(fr%5==0)MODES[cur].hud();if(fr%10==0)checkCh();fxFrame()}
-updStars();let m0=0;try{m0=+(localStorage.getItem('fluxlab-mode')||0)}catch(e){}go(m0>=0&&m0<4?m0:0);requestAnimationFrame(loop);
+updStars();let m0=0;try{m0=+(localStorage.getItem('fluxlab3-mode')||0)}catch(e){}go(m0>=0&&m0<3?m0:0);requestAnimationFrame(loop);
 </script></body></html>
